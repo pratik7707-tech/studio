@@ -38,7 +38,7 @@ export function UnfpaLogo(props: SVGProps<SVGSVGElement>) {
 
 export function QuantumPlusLogo(props: SVGProps<SVGSVGElement>) {
     return (
-        <svg width="124" height="25" viewBox="0 0 124 25" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg height="25" viewBox="0 0 124 25" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
             <text fill="#2D3748" xmlSpace="preserve" style={{whiteSpace: "pre"}} fontFamily="Arial" fontSize="16" fontWeight="bold" letterSpacing="0em"><tspan x="0" y="19.232">QUANTUM </tspan></text>
             <text fill="#E86223" xmlSpace="preserve" style={{whiteSpace: "pre"}} fontFamily="Arial" fontSize="16" fontWeight="bold" letterSpacing="0em"><tspan x="88.0156" y="19.232">PLUS</tspan></text>
         </svg>
