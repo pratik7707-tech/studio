@@ -109,7 +109,16 @@ export function ProposalNarrative({
 
 
   const handleSave = async (data: Omit<NarrativeData, 'id'> & { id?: string }) => {
-    const result = await saveNarrativeData(data);
+    let saveData: Omit<NarrativeData, 'id'> & { id?: string } = { ...data };
+    
+    if (editingItem && editingItem.id) {
+        saveData = {
+          id: editingItem.id,
+          [editingItem.type.toLowerCase()]: data[editingItem.type.toLowerCase() as keyof typeof data]
+        }
+    }
+    
+    const result = await saveNarrativeData(saveData);
 
     if (result.success && result.id) {
       toast({
@@ -117,9 +126,9 @@ export function ProposalNarrative({
         description: 'Your narrative data has been saved.',
       });
 
-      const { id, context: contextText, challenge: challengeText, opportunity: opportunityText } = data;
+      const { id, context: contextText, challenge: challengeText, opportunity: opportunityText } = saveData;
       
-      if (id) {
+      if (editingItem && id) {
          // This is an edit of a single item
          const newText = contextText || challengeText || opportunityText || ''
          const newItem = { id, text: newText };
