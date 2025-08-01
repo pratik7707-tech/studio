@@ -6,10 +6,7 @@ import { initialOperatingBudget, initialPositionBudget, initialContext, initialC
 import { Header } from './header';
 import { MetricCard } from './metric-card';
 import { BudgetDetails } from './budget-details';
-import { getAiSuggestionsAction } from '@/app/actions';
-import { AiSuggestionDialog } from './ai-suggestion-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { Wallet, Coins, Users, Lightbulb } from 'lucide-react';
+import { Wallet, Coins, Users } from 'lucide-react';
 
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>(initialOperatingBudget);
@@ -17,37 +14,6 @@ export function BudgetPageClient() {
   const [context, setContext] = useState<ContextItem[]>(initialContext);
   const [challenges, setChallenges] = useState<ContextItem[]>(initialChallenges);
   const [opportunities, setOpportunities] = useState<ContextItem[]>(initialOpportunities);
-
-  const [aiSuggestions, setAiSuggestions] = useState('');
-  const [isSuggestionModalOpen, setSuggestionModalOpen] = useState(false);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-
-  const { toast } = useToast();
-
-  const handleGetAiSuggestions = async () => {
-    setSuggestionModalOpen(true);
-    setIsLoadingSuggestions(true);
-    setAiSuggestions('');
-    
-    const result = await getAiSuggestionsAction(
-      operatingBudget,
-      positionBudget,
-      challenges,
-      opportunities
-    );
-
-    setIsLoadingSuggestions(false);
-    if (result.success) {
-      setAiSuggestions(result.suggestions);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error,
-      });
-      setSuggestionModalOpen(false);
-    }
-  };
 
   const totalOperatingBudget = useMemo(() => operatingBudget.reduce((sum, item) => sum + item.amount, 0), [operatingBudget]);
   const totalPositionBudget = useMemo(() => positionBudget.reduce((sum, item) => sum + item.amount, 0), [positionBudget]);
@@ -68,7 +34,7 @@ export function BudgetPageClient() {
       <Header />
 
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
-        <div className="grid gap-6 mb-6 md:grid-cols-4">
+        <div className="grid gap-6 mb-6 md:grid-cols-3">
           <MetricCard 
             title="Total Budget vs Total Envelope" 
             value={`${formatCurrency(totalBudget)} / ${formatCurrency(totalEnvelope)}`} 
@@ -77,13 +43,6 @@ export function BudgetPageClient() {
             />
           <MetricCard title="Total Institutional Budget" value={formatCurrency(52951220.77)} icon={Coins} />
           <MetricCard title="Total GRP Budget" value={formatCurrency(5000000.00)} icon={Users} />
-          <MetricCard 
-            title="AI Suggestions" 
-            value="Get Suggestions"
-            icon={Lightbulb}
-            onClick={handleGetAiSuggestions}
-            isButton
-          />
         </div>
         
         <div className="grid grid-cols-1">
@@ -103,13 +62,6 @@ export function BudgetPageClient() {
           </div>
         </div>
       </main>
-
-      <AiSuggestionDialog
-        open={isSuggestionModalOpen}
-        setOpen={setSuggestionModalOpen}
-        isLoading={isLoadingSuggestions}
-        suggestions={aiSuggestions}
-      />
     </div>
   );
 }
