@@ -1,0 +1,110 @@
+'use client';
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Trash2 } from "lucide-react";
+import type { BudgetItem } from "@/lib/types";
+import type { Dispatch, SetStateAction } from 'react';
+
+interface BudgetTableProps {
+  title: string;
+  data: BudgetItem[];
+  setData: Dispatch<SetStateAction<BudgetItem[]>>;
+}
+
+export function BudgetTable({ title, data, setData }: BudgetTableProps) {
+  const handleAddItem = () => {
+    setData([
+      ...data,
+      { id: `new-${Date.now()}`, category: '', item: '', amount: 0 },
+    ]);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setData(data.filter(item => item.id !== id));
+  };
+
+  const handleUpdateItem = (id: string, field: keyof BudgetItem, value: string | number) => {
+    setData(data.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+  
+  const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
+
+  return (
+    <Card className="shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="font-headline">{title}</CardTitle>
+          <CardDescription>Details of the {title.toLowerCase()}.</CardDescription>
+        </div>
+        <Button size="sm" onClick={handleAddItem}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Item
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[200px]">Category</TableHead>
+                <TableHead>Item</TableHead>
+                <TableHead className="w-[150px] text-right">Amount</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <Input
+                      value={item.category}
+                      onChange={(e) => handleUpdateItem(item.id, 'category', e.target.value)}
+                      className="h-8"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={item.item}
+                      onChange={(e) => handleUpdateItem(item.id, 'item', e.target.value)}
+                      className="h-8"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Input
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) => handleUpdateItem(item.id, 'amount', Number(e.target.value))}
+                      className="h-8 text-right"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter>
+                <TableRow>
+                    <TableCell colSpan={2} className="font-bold">Total</TableCell>
+                    <TableCell className="text-right font-bold">{formatCurrency(totalAmount)}</TableCell>
+                    <TableCell></TableCell>
+                </TableRow>
+            </TableFooter>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
