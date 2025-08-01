@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import type { ContextItem } from '@/lib/types';
 import type { Dispatch, SetStateAction } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ContextForm } from './context-form';
 import {
   DropdownMenu,
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { saveNarrativeItem, deleteNarrativeItem } from '@/app/actions';
+import { saveNarrativeItem, deleteNarrativeItem, getNarrativeItems } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Skeleton } from '../ui/skeleton';
 
 interface NarrativeSectionProps {
   title: string;
@@ -113,7 +114,24 @@ export function ProposalNarrative({
   const [editingItem, setEditingItem] = useState<ContextItem | undefined>(undefined);
   const [formType, setFormType] = useState<'Context' | 'Challenge' | 'Opportunity'>('Context');
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      const result = await getNarrativeItems();
+      if (result.success && result.data) {
+        setContext(result.data.filter(d => d.type === 'Context'));
+        setChallenges(result.data.filter(d => d.type === 'Challenge'));
+        setOpportunities(result.data.filter(d => d.type === 'Opportunity'));
+      } else if (!result.success) {
+        toast({ variant: 'destructive', title: 'Error loading data', description: result.error });
+      }
+      setIsLoading(false);
+    }
+    loadData();
+  }, [setContext, setChallenges, setOpportunities, toast]);
 
   const handleAdd = (type: 'Context' | 'Challenge' | 'Opportunity') => {
     setEditingItem(undefined);
@@ -202,6 +220,27 @@ export function ProposalNarrative({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Context, Challenges &amp; Opportunities
+        </h2>
+        <Card className="mb-4 shadow-sm">
+          <CardHeader><CardTitle><Skeleton className="h-6 w-1/4" /></CardTitle></CardHeader>
+          <CardContent><Skeleton className="h-4 w-full" /></CardContent>
+        </Card>
+        <Card className="mb-4 shadow-sm">
+          <CardHeader><CardTitle><Skeleton className="h-6 w-1/4" /></CardTitle></CardHeader>
+          <CardContent><Skeleton className="h-4 w-full" /></CardContent>
+        </Card>
+        <Card className="mb-4 shadow-sm">
+          <CardHeader><CardTitle><Skeleton className="h-6 w-1/4" /></CardTitle></CardHeader>
+          <CardContent><Skeleton className="h-4 w-full" /></CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const noData = context.length === 0 && challenges.length === 0 && opportunities.length === 0;
 

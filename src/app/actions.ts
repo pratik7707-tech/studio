@@ -3,7 +3,7 @@
 import { suggestBudgetImprovements } from '@/ai/flows/suggest-budget-improvements';
 import type { BudgetItem, ContextItem } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc, getDocs, query, orderBy } from 'firebase/firestore';
 
 function formatBudgetDataToCSV(data: BudgetItem[]): string {
   const header = 'Category,Item,Amount\n';
@@ -77,5 +77,17 @@ export async function deleteNarrativeItem(id: string) {
   } catch (error) {
     console.error("Error deleting document: ", error);
     return { success: false, error: "Failed to delete item from Firestore." };
+  }
+}
+
+export async function getNarrativeItems() {
+  try {
+    const q = query(collection(db, "narratives"), orderBy("createdAt"));
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ContextItem[];
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error getting documents: ", error);
+    return { success: false, error: "Failed to fetch data from Firestore." };
   }
 }
