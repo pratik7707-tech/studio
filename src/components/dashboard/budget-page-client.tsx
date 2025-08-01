@@ -6,11 +6,10 @@ import { initialOperatingBudget, initialPositionBudget, initialContext, initialC
 import { Header } from './header';
 import { MetricCard } from './metric-card';
 import { BudgetDetails } from './budget-details';
-import { ContextCard } from './context-card';
 import { getAiSuggestionsAction } from '@/app/actions';
 import { AiSuggestionDialog } from './ai-suggestion-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, Coins, Users, Lightbulb, AlertTriangle, CheckCircle, FileText } from 'lucide-react';
+import { Wallet, Coins, Users, Lightbulb } from 'lucide-react';
 
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>(initialOperatingBudget);
@@ -87,19 +86,20 @@ export function BudgetPageClient() {
           />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1">
+          <div>
             <BudgetDetails
               operatingBudget={operatingBudget}
               setOperatingBudget={setOperatingBudget}
               positionBudget={positionBudget}
               setPositionBudget={setPositionBudget}
+              context={context}
+              setContext={setContext}
+              challenges={challenges}
+              setChallenges={setChallenges}
+              opportunities={opportunities}
+              setOpportunities={setOpportunities}
             />
-          </div>
-          <div className="space-y-6">
-             <ContextCard title="Context" items={context} setItems={setContext} icon={FileText} />
-             <ContextCard title="Challenges" items={challenges} setItems={setChallenges} icon={AlertTriangle} />
-             <ContextCard title="Opportunities" items={opportunities} setItems={setOpportunities} icon={CheckCircle} />
           </div>
         </div>
       </main>
