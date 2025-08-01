@@ -42,26 +42,17 @@ export async function getAiSuggestionsAction(
 export async function saveNarrativeData(data: Omit<NarrativeData, 'id'> & { id?: string }) {
   try {
     const { id, ...saveData } = data;
-    const cleanData: Partial<NarrativeData> = {};
-
-    if (saveData.context) cleanData.context = saveData.context;
-    if (saveData.challenge) cleanData.challenge = saveData.challenge;
-    if (saveData.opportunity) cleanData.opportunity = saveData.opportunity;
-
-    if (Object.keys(cleanData).length === 0 && !id) {
-      // Don't save if there's nothing to save and it's not an edit.
-      return { success: true, id: '' };
-    }
     
     let docId = id;
 
-    if (id) {
-      const docRef = doc(db, 'narratives', id);
-      await updateDoc(docRef, { ...cleanData, updatedAt: serverTimestamp() });
+    if (docId) {
+      const docRef = doc(db, 'narratives', docId);
+      await updateDoc(docRef, { ...saveData, updatedAt: serverTimestamp() });
     } else {
       const docRef = await addDoc(collection(db, "narratives"), {
-        ...cleanData,
+        ...saveData,
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
       docId = docRef.id;
     }

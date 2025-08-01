@@ -108,64 +108,74 @@ export function ProposalNarrative({
     setOpportunities(opportunities.filter(item => item.id !== itemToDelete.id));
   };
 
-
-  const handleSave = async (data: Partial<NarrativeData>) => {
+  const handleSave = async (data: Partial<Omit<NarrativeData, 'id'>>) => {
     setIsSaving(true);
-    let saveData: Partial<NarrativeData> & { id?: string } = { ...data };
     
-    if (editingItem?.id) {
-      saveData.id = editingItem.id;
-      const typeKey = editingItem.type.toLowerCase() as keyof NarrativeData;
-      // @ts-ignore
-      saveData[typeKey] = data[typeKey];
+    // Logic for editing an existing item
+    if (editingItem && editingItem.id) {
+        const typeKey = editingItem.type.toLowerCase() as keyof typeof data;
+        const newText = data[typeKey];
+        if (typeof newText !== 'string') {
+            setIsSaving(false);
+            return;
+        }
+        
+        // This is a simplified approach: assuming one item (context, challenge, etc.) per document.
+        // If your model is one document for ALL context, challenges, etc, this will need adjustment.
+        // For now, let's assume one item per doc. We need the doc ID.
+        // The ContextItem id needs to map to a Firestore document ID.
+        // Let's assume item.id is the document ID for now.
+        const result = await saveNarrativeData({
+            id: editingItem.id,
+            [typeKey]: newText
+        });
+
+        setIsSaving(false);
+        if (result.success && result.id) {
+             toast({ title: 'Success!', description: 'Your item has been updated.' });
+             setFormOpen(false);
+             const updatedItem = { id: result.id, text: newText, type: editingItem.type };
+             
+             if (editingItem.type === 'Context') setContext(prev => prev.map(i => i.id === editingItem.id ? updatedItem : i));
+             else if (editingItem.type === 'Challenge') setChallenges(prev => prev.map(i => i.id === editingItem.id ? updatedItem : i));
+             else if (editingItem.type === 'Opportunity') setOpportunities(prev => prev.map(i => i.id === editingItem.id ? updatedItem : i));
+
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
+        return;
     }
-    
-    const result = await saveNarrativeData(saveData);
-    setIsSaving(false);
 
-    if (result.success && result.id) {
-      toast({
-        title: 'Success!',
-        description: 'Your narrative data has been saved.',
-      });
-      setFormOpen(false);
-
-      if (editingItem && editingItem.id) {
-         // This is an edit of a single item
-         const typeKey = editingItem.type.toLowerCase() as keyof NarrativeData;
-         // @ts-ignore
-         const newText = data[typeKey] || ''
-         const newItem = { id: editingItem.id, text: newText, type: formType };
-
-         if (formType === 'Context') {
-           setContext(prev => prev.map(i => i.id === editingItem.id ? newItem : i));
-         } else if (formType === 'Challenge') {
-          setChallenges(prev => prev.map(i => i.id === editingItem.id ? newItem : i));
-         } else if (formType === 'Opportunity') {
-          setOpportunities(prev => prev.map(i => i.id === editingItem.id ? newItem : i));
-         }
-      } else {
-        // This is for adding new items
-        const newId = result.id;
+    // Logic for adding new items
+    try {
         if (data.context) {
-          setContext(prev => [...prev, { id: `${newId}-context`, text: data.context!, type: 'Context' }]);
+            const result = await saveNarrativeData({ context: data.context });
+            if (result.success && result.id) {
+                setContext(prev => [...prev, { id: result.id, text: data.context!, type: 'Context' }]);
+            } else throw new Error(result.error);
         }
         if (data.challenge) {
-          setChallenges(prev => [...prev, { id: `${newId}-challenge`, text: data.challenge!, type: 'Challenge' }]);
+            const result = await saveNarrativeData({ challenge: data.challenge });
+            if (result.success && result.id) {
+                setChallenges(prev => [...prev, { id: result.id, text: data.challenge!, type: 'Challenge' }]);
+            } else throw new Error(result.error);
         }
         if (data.opportunity) {
-          setOpportunities(prev => [...prev, { id: `${newId}-opportunity`, text: data.opportunity!, type: 'Opportunity' }]);
+            const result = await saveNarrativeData({ opportunity: data.opportunity });
+            if (result.success && result.id) {
+                setOpportunities(prev => [...prev, { id: result.id, text: data.opportunity!, type: 'Opportunity' }]);
+            } else throw new Error(result.error);
         }
-      }
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error,
-      });
-      return;
+
+        toast({ title: 'Success!', description: 'Your items have been saved.' });
+        setFormOpen(false);
+    } catch (e: any) {
+        toast({ variant: 'destructive', title: 'Error', description: e.message || 'Failed to save one or more items.' });
+    } finally {
+        setIsSaving(false);
     }
   };
+
 
   const noData = context.length === 0 && challenges.length === 0 && opportunities.length === 0;
 
