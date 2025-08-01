@@ -45,8 +45,8 @@ export function Header() {
       <div className="bg-card border-b sticky top-[84px] z-10">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div className='flex items-center gap-4'>
-                <h1 className="text-2xl font-bold font-headline text-foreground">Integrated Budget</h1>
-                <Badge variant="secondary" className="text-sm">Draft</Badge>
+                <h1 className="text-2xl font-extrabold font-headline text-foreground">Integrated Budget</h1>
+                <Badge variant="secondary" className="text-sm font-medium">Draft</Badge>
             </div>
           <div className="flex items-center gap-2 md:gap-4">
             <Select defaultValue="v1">
