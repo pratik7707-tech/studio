@@ -100,6 +100,7 @@ export function ProposalNarrative({
   
     let hadError = false;
     for (const item of allItems) {
+      if (!item.id) continue;
       const result = await deleteNarrativeItem(item.id);
       if (!result.success) {
         hadError = true;
@@ -119,11 +120,11 @@ export function ProposalNarrative({
   const handleSave = async (data: { [key: string]: string | undefined }) => {
     setIsSaving(true);
 
-    const getSetter = (type: 'Context' | 'Challenge' | 'Opportunity') => {
-      if (type === 'Context') return setContext;
-      if (type === 'Challenge') return setChallenges;
-      return setOpportunities;
-    };
+    // First, delete all existing items
+    const allCurrentItems = [...context, ...challenges, ...opportunities];
+    for (const item of allCurrentItems) {
+        if (item.id) await deleteNarrativeItem(item.id);
+    }
   
     try {
         const itemsToSave: { text: string, type: 'Context' | 'Challenge' | 'Opportunity' }[] = [];
@@ -131,31 +132,33 @@ export function ProposalNarrative({
         if (data.challenge && data.challenge.trim()) itemsToSave.push({ text: data.challenge, type: 'Challenge' });
         if (data.opportunity && data.opportunity.trim()) itemsToSave.push({ text: data.opportunity, type: 'Opportunity' });
   
-        // Delete all existing items first
-        const allCurrentItems = [...context, ...challenges, ...opportunities];
-        for (const item of allCurrentItems) {
-            await deleteNarrativeItem(item.id);
-        }
-        setContext([]);
-        setChallenges([]);
-        setOpportunities([]);
-
         if (itemsToSave.length === 0) {
+            setContext([]);
+            setChallenges([]);
+            setOpportunities([]);
             toast({ title: 'Narrative cleared', description: 'All fields were empty.' });
         } else {
             let hadError = false;
+            const newContext: ContextItem[] = [];
+            const newChallenges: ContextItem[] = [];
+            const newOpportunities: ContextItem[] = [];
+
             for (const item of itemsToSave) {
               const result = await saveNarrativeItem(item);
               if (result.success && result.id) {
-                const setter = getSetter(item.type);
-                const newItem = { ...item, id: result.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-                setter(prev => [...prev, newItem]);
+                const newItem: ContextItem = { ...item, id: result.id };
+                if (item.type === 'Context') newContext.push(newItem);
+                if (item.type === 'Challenge') newChallenges.push(newItem);
+                if (item.type === 'Opportunity') newOpportunities.push(newItem);
               } else {
                 hadError = true;
                 toast({ variant: 'destructive', title: 'Error', description: `Failed to save ${item.type}: ${result.error}` });
               }
             }
             if (!hadError) {
+              setContext(newContext);
+              setChallenges(newChallenges);
+              setOpportunities(newOpportunities);
               toast({ title: 'Success!', description: 'Your narrative has been saved.' });
               setFormOpen(false);
             }
@@ -241,7 +244,7 @@ export function ProposalNarrative({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteAll}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={handleDeleteAll} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
