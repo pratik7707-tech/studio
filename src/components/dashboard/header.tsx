@@ -9,13 +9,13 @@ import { UnfpaLogo, QuantumPlusLogo } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-type NavItem = 'Results and Resources Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
+type NavItem = 'RRP Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
 
 export function Header() {
   const [activeNav, setActiveNav] = useState<NavItem>('Integrated Budget');
 
   const navItems: NavItem[] = [
-    'Results and Resources Plan',
+    'RRP Plan',
     'Partner Implementation',
     'Integrated Budget',
     'Admin'
