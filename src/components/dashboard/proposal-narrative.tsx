@@ -27,72 +27,66 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Skeleton } from '../ui/skeleton';
 
-interface NarrativeSectionProps {
+interface NarrativeDisplayProps {
   title: string;
   items: ContextItem[];
-  onAdd: () => void;
   onEdit: (item: ContextItem) => void;
   onDelete: (item: ContextItem) => void;
+  placeholder: string;
 }
 
-const NarrativeSection = ({ title, items, onAdd, onEdit, onDelete }: NarrativeSectionProps) => (
-  <Card className="mb-4 shadow-sm">
-    <CardHeader className="flex flex-row items-center justify-between pb-2">
-      <CardTitle className="text-lg font-medium">{title}</CardTitle>
-      <Button variant="ghost" size="sm" onClick={onAdd}>
-        <Plus className="mr-2 h-4 w-4" /> Add
-      </Button>
-    </CardHeader>
-    <CardContent>
-      {items.length > 0 ? (
-        <ul className="space-y-2">
-          {items.map(item => (
-            <li key={item.id} className="flex items-center justify-between group">
-              <p className="text-sm text-muted-foreground">{item.text}</p>
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit(item)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Edit</span>
-                    </DropdownMenuItem>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete</span>
-                        </button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the item.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onDelete(item)}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-sm text-muted-foreground italic">No {title.toLowerCase()} added yet.</p>
-      )}
-    </CardContent>
-  </Card>
+const NarrativeDisplay = ({ title, items, onEdit, onDelete, placeholder }: NarrativeDisplayProps) => (
+  <div className="mb-4">
+    <h3 className="text-md font-semibold mb-2">{title}</h3>
+    {items.length > 0 ? (
+      <ul className="space-y-2">
+        {items.map(item => (
+          <li key={item.id} className="flex items-center justify-between group">
+            <p className="text-sm text-muted-foreground">{item.text}</p>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEdit(item)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span>Edit</span>
+                  </DropdownMenuItem>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Delete</span>
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete the item.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(item)}>Delete</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-sm text-muted-foreground italic">{placeholder}</p>
+    )}
+  </div>
 );
+
 
 interface ProposalNarrativeProps {
   context: ContextItem[];
@@ -141,18 +135,21 @@ export function ProposalNarrative({
   };
 
   const handleEdit = (item: ContextItem) => {
-    const type = context.some(c => c.id === item.id) ? 'Context' : challenges.some(c => c.id === item.id) ? 'Challenge' : 'Opportunity';
-    setEditingItem({ ...item, type });
-    setFormType(type);
+    setEditingItem(item);
+    setFormType(item.type);
     setFormOpen(true);
   };
 
   const handleDelete = async (itemToDelete: ContextItem) => {
     const result = await deleteNarrativeItem(itemToDelete.id);
     if (result.success) {
-      setContext(context.filter(item => item.id !== itemToDelete.id));
-      setChallenges(challenges.filter(item => item.id !== itemToDelete.id));
-      setOpportunities(opportunities.filter(item => item.id !== itemToDelete.id));
+      if (itemToDelete.type === 'Context') {
+        setContext(prev => prev.filter(item => item.id !== itemToDelete.id));
+      } else if (itemToDelete.type === 'Challenge') {
+        setChallenges(prev => prev.filter(item => item.id !== itemToDelete.id));
+      } else if (itemToDelete.type === 'Opportunity') {
+        setOpportunities(prev => prev.filter(item => item.id !== itemToDelete.id));
+      }
       toast({ title: 'Success!', description: 'Item deleted.' });
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
@@ -171,18 +168,23 @@ export function ProposalNarrative({
     try {
       if (editingItem) {
         // This is an edit
-        const itemToSave = { id: editingItem.id, text: data[formType.toLowerCase()] || '', type: formType };
-        if (!itemToSave.text) {
-          toast({ variant: 'destructive', title: 'Error', description: 'Text cannot be empty.' });
-          setIsSaving(false);
-          return;
+        const textKey = editingItem.type.toLowerCase();
+        const newText = data[textKey];
+        if (typeof newText !== 'string' || !newText.trim()) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Text cannot be empty.' });
+            setIsSaving(false);
+            return;
         }
+
+        const itemToSave = { id: editingItem.id, text: newText, type: editingItem.type };
+        
         const result = await saveNarrativeItem(itemToSave);
         if (result.success) {
           const setter = getSetter(itemToSave.type);
           setter(prev => prev.map(item => item.id === itemToSave.id ? { ...item, text: itemToSave.text } : item));
           toast({ title: 'Success!', description: 'Your item has been updated.' });
           setFormOpen(false);
+          setEditingItem(undefined);
         } else {
           toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
@@ -223,23 +225,21 @@ export function ProposalNarrative({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Context, Challenges &amp; Opportunities
-        </h2>
-        <Card className="mb-4 shadow-sm">
-          <CardHeader><CardTitle><Skeleton className="h-6 w-1/4" /></CardTitle></CardHeader>
-          <CardContent><Skeleton className="h-4 w-full" /></CardContent>
-        </Card>
-        <Card className="mb-4 shadow-sm">
-          <CardHeader><CardTitle><Skeleton className="h-6 w-1/4" /></CardTitle></CardHeader>
-          <CardContent><Skeleton className="h-4 w-full" /></CardContent>
-        </Card>
-        <Card className="mb-4 shadow-sm">
-          <CardHeader><CardTitle><Skeleton className="h-6 w-1/4" /></CardTitle></CardHeader>
-          <CardContent><Skeleton className="h-4 w-full" /></CardContent>
-        </Card>
-      </div>
+      <Card className="shadow-none border-none">
+        <CardHeader>
+          <CardTitle>
+             <Skeleton className="h-6 w-1/2" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+           <Skeleton className="h-4 w-1/4" />
+           <Skeleton className="h-4 w-3/4" />
+           <Skeleton className="h-4 w-1/4" />
+           <Skeleton className="h-4 w-3/4" />
+           <Skeleton className="h-4 w-1/4" />
+           <Skeleton className="h-4 w-3/4" />
+        </CardContent>
+      </Card>
     );
   }
 
@@ -258,45 +258,52 @@ export function ProposalNarrative({
           setIsOpen={setFormOpen}
           onSave={handleSave}
           isSaving={isSaving}
-          initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : undefined}
+          initialData={editingItem}
         />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-800">
-        Context, Challenges &amp; Opportunities
-      </h2>
-      <NarrativeSection
-        title="Context"
-        items={context}
-        onAdd={() => handleAdd('Context')}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-      <NarrativeSection
-        title="Challenges"
-        items={challenges}
-        onAdd={() => handleAdd('Challenge')}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-      <NarrativeSection
-        title="Opportunities"
-        items={opportunities}
-        onAdd={() => handleAdd('Opportunity')}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+    <Card className="shadow-none border-none">
+      <CardHeader className="flex flex-row items-center justify-between p-0 mb-4">
+        <CardTitle className="text-xl font-semibold text-gray-800">
+          Context, Challenges &amp; Opportunities
+        </CardTitle>
+         <Button variant="ghost" size="sm" onClick={() => handleAdd('Context')}>
+          <Plus className="mr-2 h-4 w-4" /> Add
+        </Button>
+      </CardHeader>
+      <CardContent className="p-0">
+          <NarrativeDisplay
+            title="Context"
+            items={context}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            placeholder="No context identified."
+          />
+          <NarrativeDisplay
+            title="Challenges"
+            items={challenges}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            placeholder="No challenges identified."
+          />
+          <NarrativeDisplay
+            title="Opportunities"
+            items={opportunities}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            placeholder="No opportunities identified."
+          />
+      </CardContent>
       <ContextForm
         isOpen={isFormOpen}
         setIsOpen={setFormOpen}
         onSave={handleSave}
         isSaving={isSaving}
-        initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : undefined}
+        initialData={editingItem}
       />
-    </div>
+    </Card>
   );
 }

@@ -15,6 +15,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import type { ContextItem } from '@/lib/types';
 
 const formSchema = z.object({
   context: z.string().optional(),
@@ -29,11 +30,7 @@ interface ContextFormProps {
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: FormData) => void;
   isSaving: boolean;
-  initialData?: {
-    id?: string;
-    type: 'Context' | 'Challenge' | 'Opportunity';
-    text: string;
-  };
+  initialData?: ContextItem;
 }
 
 export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }: ContextFormProps) {
@@ -46,6 +43,8 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     resolver: zodResolver(formSchema),
     defaultValues: { context: '', challenge: '', opportunity: '' },
   });
+
+  const isEditing = !!initialData;
 
   useEffect(() => {
     if (isOpen) {
@@ -67,33 +66,47 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initialData?.id ? 'Edit Item' : 'Add New Items'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Item' : 'Add New Items'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="context">Context</Label>
-            <Controller
-              name="context"
-              control={control}
-              render={({ field }) => <Textarea {...field} placeholder="Enter context" />}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="challenge">Challenge</Label>
-            <Controller
-              name="challenge"
-              control={control}
-              render={({ field }) => <Textarea {...field} placeholder="Enter challenge" />}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="opportunity">Opportunity</Label>
-            <Controller
-              name="opportunity"
-              control={control}
-              render={({ field }) => <Textarea {...field} placeholder="Enter opportunity" />}
-            />
-          </div>
+          {isEditing ? (
+             <div className="space-y-2">
+                <Label htmlFor={initialData.type.toLowerCase()}>{initialData.type}</Label>
+                <Controller
+                  name={initialData.type.toLowerCase() as "context" | "challenge" | "opportunity"}
+                  control={control}
+                  render={({ field }) => <Textarea {...field} placeholder={`Enter ${initialData.type.toLowerCase()}`} />}
+                />
+              </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="context">Context</Label>
+                <Controller
+                  name="context"
+                  control={control}
+                  render={({ field }) => <Textarea {...field} placeholder="Enter context" />}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="challenge">Challenge</Label>
+                <Controller
+                  name="challenge"
+                  control={control}
+                  render={({ field }) => <Textarea {...field} placeholder="Enter challenge" />}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="opportunity">Opportunity</Label>
+                <Controller
+                  name="opportunity"
+                  control={control}
+                  render={({ field }) => <Textarea {...field} placeholder="Enter opportunity" />}
+                />
+              </div>
+            </>
+          )}
+
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isSaving}>
