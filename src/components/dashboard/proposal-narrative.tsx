@@ -109,15 +109,15 @@ export function ProposalNarrative({
   };
 
 
-  const handleSave = async (data: Omit<NarrativeData, 'id'> & { id?: string }) => {
+  const handleSave = async (data: Partial<NarrativeData>) => {
     setIsSaving(true);
-    let saveData: Omit<NarrativeData, 'id'> & { id?: string } = { ...data };
+    let saveData: Partial<NarrativeData> & { id?: string } = { ...data };
     
-    if (editingItem && editingItem.id) {
-        saveData = {
-          id: editingItem.id,
-          [editingItem.type.toLowerCase()]: data[editingItem.type.toLowerCase() as keyof typeof data]
-        }
+    if (editingItem?.id) {
+      saveData.id = editingItem.id;
+      const typeKey = editingItem.type.toLowerCase() as keyof NarrativeData;
+      // @ts-ignore
+      saveData[typeKey] = data[typeKey];
     }
     
     const result = await saveNarrativeData(saveData);
@@ -130,30 +130,31 @@ export function ProposalNarrative({
       });
       setFormOpen(false);
 
-      const { id, context: contextText, challenge: challengeText, opportunity: opportunityText } = saveData;
-      
-      if (editingItem && id) {
+      if (editingItem && editingItem.id) {
          // This is an edit of a single item
-         const newText = contextText || challengeText || opportunityText || ''
-         const newItem = { id, text: newText, type: formType };
+         const typeKey = editingItem.type.toLowerCase() as keyof NarrativeData;
+         // @ts-ignore
+         const newText = data[typeKey] || ''
+         const newItem = { id: editingItem.id, text: newText, type: formType };
+
          if (formType === 'Context') {
-           setContext(prev => prev.map(i => i.id === id ? newItem : i));
+           setContext(prev => prev.map(i => i.id === editingItem.id ? newItem : i));
          } else if (formType === 'Challenge') {
-          setChallenges(prev => prev.map(i => i.id === id ? newItem : i));
+          setChallenges(prev => prev.map(i => i.id === editingItem.id ? newItem : i));
          } else if (formType === 'Opportunity') {
-          setOpportunities(prev => prev.map(i => i.id === id ? newItem : i));
+          setOpportunities(prev => prev.map(i => i.id === editingItem.id ? newItem : i));
          }
       } else {
         // This is for adding new items
         const newId = result.id;
-        if (contextText) {
-          setContext(prev => [...prev, { id: `context-${newId}`, text: contextText }]);
+        if (data.context) {
+          setContext(prev => [...prev, { id: `${newId}-context`, text: data.context!, type: 'Context' }]);
         }
-        if (challengeText) {
-          setChallenges(prev => [...prev, { id: `challenge-${newId}`, text: challengeText }]);
+        if (data.challenge) {
+          setChallenges(prev => [...prev, { id: `${newId}-challenge`, text: data.challenge!, type: 'Challenge' }]);
         }
-        if (opportunityText) {
-          setOpportunities(prev => [...prev, { id: `opportunity-${newId}`, text: opportunityText }]);
+        if (data.opportunity) {
+          setOpportunities(prev => [...prev, { id: `${newId}-opportunity`, text: data.opportunity!, type: 'Opportunity' }]);
         }
       }
     } else {
