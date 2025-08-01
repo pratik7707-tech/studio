@@ -96,7 +96,7 @@ export function ProposalNarrative({
 
   const handleEdit = (item: ContextItem) => {
     const type = context.some(c => c.id === item.id) ? 'Context' : challenges.some(c => c.id === item.id) ? 'Challenge' : 'Opportunity';
-    setEditingItem(item);
+    setEditingItem({ ...item, type });
     setFormType(type);
     setFormOpen(true);
   };
@@ -108,16 +108,41 @@ export function ProposalNarrative({
   };
 
 
-  const handleSave = async (data: NarrativeData) => {
-    const { context: contextText, challenge: challengeText, opportunity: opportunityText, id } = data;
-    
+  const handleSave = async (data: Omit<NarrativeData, 'id'> & { id?: string }) => {
     const result = await saveNarrativeData(data);
 
-    if (result.success) {
+    if (result.success && result.id) {
       toast({
         title: 'Success!',
         description: 'Your narrative data has been saved.',
       });
+
+      const { id, context: contextText, challenge: challengeText, opportunity: opportunityText } = data;
+      
+      if (id) {
+         // This is an edit of a single item
+         const newText = contextText || challengeText || opportunityText || ''
+         const newItem = { id, text: newText };
+         if (formType === 'Context') {
+           setContext(prev => prev.map(i => i.id === id ? newItem : i));
+         } else if (formType === 'Challenge') {
+          setChallenges(prev => prev.map(i => i.id === id ? newItem : i));
+         } else if (formType === 'Opportunity') {
+          setOpportunities(prev => prev.map(i => i.id === id ? newItem : i));
+         }
+      } else {
+        // This is for adding new items
+        const newId = result.id;
+        if (contextText) {
+          setContext(prev => [...prev, { id: `context-${newId}`, text: contextText }]);
+        }
+        if (challengeText) {
+          setChallenges(prev => [...prev, { id: `challenge-${newId}`, text: challengeText }]);
+        }
+        if (opportunityText) {
+          setOpportunities(prev => [...prev, { id: `opportunity-${newId}`, text: opportunityText }]);
+        }
+      }
     } else {
       toast({
         variant: 'destructive',
@@ -125,29 +150,6 @@ export function ProposalNarrative({
         description: result.error,
       });
       return;
-    }
-
-    if (id) {
-       // This is an edit of a single item
-       const newItem = { id, text: contextText || challengeText || opportunityText || '' };
-       if (formType === 'Context') {
-         setContext(prev => prev.map(i => i.id === id ? newItem : i));
-       } else if (formType === 'Challenge') {
-        setChallenges(prev => prev.map(i => i.id === id ? newItem : i));
-       } else if (formType === 'Opportunity') {
-        setOpportunities(prev => prev.map(i => i.id === id ? newItem : i));
-       }
-    } else {
-      // This is for adding new items
-      if (contextText) {
-        setContext(prev => [...prev, { id: `context-${Date.now()}`, text: contextText }]);
-      }
-      if (challengeText) {
-        setChallenges(prev => [...prev, { id: `challenge-${Date.now()}`, text: challengeText }]);
-      }
-      if (opportunityText) {
-        setOpportunities(prev => [...prev, { id: `opportunity-${Date.now()}`, text: opportunityText }]);
-      }
     }
   };
 

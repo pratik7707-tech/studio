@@ -3,7 +3,7 @@
 import { suggestBudgetImprovements } from '@/ai/flows/suggest-budget-improvements';
 import type { BudgetItem, ContextItem, NarrativeData } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc } from 'firebase/firestore';
 
 function formatBudgetDataToCSV(data: BudgetItem[]): string {
   const header = 'Category,Item,Amount\n';
@@ -39,15 +39,37 @@ export async function getAiSuggestionsAction(
   }
 }
 
-export async function saveNarrativeData(data: NarrativeData) {
+export async function saveNarrativeData(data: Omit<NarrativeData, 'id'> & { id?: string }) {
   try {
-    const docRef = await addDoc(collection(db, "narratives"), {
-      ...data,
-      createdAt: serverTimestamp(),
-    });
-    return { success: true, id: docRef.id };
+    const { id, ...saveData } = data;
+    const cleanData: Partial<NarrativeData> = {};
+
+    if (saveData.context) cleanData.context = saveData.context;
+    if (saveData.challenge) cleanData.challenge = saveData.challenge;
+    if (saveData.opportunity) cleanData.opportunity = saveData.opportunity;
+
+    if (Object.keys(cleanData).length === 0 && !id) {
+      // Don't save if there's nothing to save and it's not an edit.
+      return { success: true, id: '' };
+    }
+    
+    let docId = id;
+
+    if (id) {
+      const docRef = doc(db, 'narratives', id);
+      await updateDoc(docRef, { ...cleanData, updatedAt: serverTimestamp() });
+    } else {
+      const docRef = await addDoc(collection(db, "narratives"), {
+        ...cleanData,
+        createdAt: serverTimestamp(),
+      });
+      docId = docRef.id;
+    }
+    
+    return { success: true, id: docId };
+
   } catch (error) {
-    console.error("Error adding document: ", error);
+    console.error("Error adding/updating document: ", error);
     return { success: false, error: 'Failed to save data to Firestore.' };
   }
 }
