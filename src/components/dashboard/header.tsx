@@ -96,7 +96,24 @@ export function Header() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="B0002">B0002-Corp HQ - Management and Admin</SelectItem>
-                <SelectItem value="B0003" disabled>B0003-R&D</SelectItem>
+                <SelectItem value="B0001">B0001-Executive Office</SelectItem>
+                <SelectItem value="B0010">B0010-Ethics Office</SelectItem>
+                <SelectItem value="B0100">B0100-Office of Audit and Investigation Services</SelectItem>
+                <SelectItem value="B0101">B0101-Evaluation Office</SelectItem>
+                <SelectItem value="B0110">B0110-Division for Human Resources</SelectItem>
+                <SelectItem value="B1100">B1100-Humanitarian Response Division</SelectItem>
+                <SelectItem value="B1140">B1140-Programme Division</SelectItem>
+                <SelectItem value="B1400">B1400-Regional Office/ESA Region</SelectItem>
+                <SelectItem value="B1420">B1420-Regional Office/WCA Region</SelectItem>
+                <SelectItem value="B1600">B1600-Asia and Pacific Regional Office</SelectItem>
+                <SelectItem value="B1700">B1700-Latin America/Caribbean Regional Office</SelectItem>
+                <SelectItem value="B1800">B1800-Arab States Regional Office</SelectItem>
+                <SelectItem value="B1900">B1900-EECA Regional Office</SelectItem>
+                <SelectItem value="B2100">B2100-Division for Management Services</SelectItem>
+                <SelectItem value="B2107">B2107-Supply Chain Management Unit</SelectItem>
+                <SelectItem value="B2108">B2108-Information Technology Solutions Office</SelectItem>
+                <SelectItem value="B2230">B2230-Division for External Relations</SelectItem>
+                <SelectItem value="B2300">B2300-Office of Security Coordinator</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="ghost" size="icon">
