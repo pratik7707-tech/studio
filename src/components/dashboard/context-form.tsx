@@ -9,13 +9,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -23,9 +16,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 
 const formSchema = z.object({
-  id: z.string().optional(),
-  type: z.enum(['Context', 'Challenge', 'Opportunity']),
-  text: z.string().min(1, 'Text cannot be empty.'),
+  context: z.string().optional(),
+  challenge: z.string().optional(),
+  opportunity: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -49,12 +42,18 @@ export function ContextForm({ isOpen, setIsOpen, onSave, initialData }: ContextF
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || { type: 'Context', text: '' },
+    defaultValues: { context: '', challenge: '', opportunity: '' },
   });
 
   useEffect(() => {
     if (isOpen) {
-      reset(initialData || { type: 'Context', text: '' });
+      if (initialData) {
+        reset({
+          [initialData.type.toLowerCase()]: initialData.text,
+        });
+      } else {
+        reset({ context: '', challenge: '', opportunity: '' });
+      }
     }
   }, [isOpen, initialData, reset]);
 
@@ -67,36 +66,32 @@ export function ContextForm({ isOpen, setIsOpen, onSave, initialData }: ContextF
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initialData?.id ? 'Edit Item' : 'Add New Item'}</DialogTitle>
+          <DialogTitle>{initialData?.id ? 'Edit Item' : 'Add New Items'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
+            <Label htmlFor="context">Context</Label>
             <Controller
-              name="type"
+              name="context"
               control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Context">Context</SelectItem>
-                    <SelectItem value="Challenge">Challenge</SelectItem>
-                    <SelectItem value="Opportunity">Opportunity</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
+              render={({ field }) => <Textarea {...field} placeholder="Enter context" />}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="text">Description</Label>
+            <Label htmlFor="challenge">Challenge</Label>
             <Controller
-              name="text"
+              name="challenge"
               control={control}
-              render={({ field }) => <Textarea {...field} placeholder="Enter description" />}
+              render={({ field }) => <Textarea {...field} placeholder="Enter challenge" />}
             />
-            {errors.text && <p className="text-sm text-destructive">{errors.text.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="opportunity">Opportunity</Label>
+            <Controller
+              name="opportunity"
+              control={control}
+              render={({ field }) => <Textarea {...field} placeholder="Enter opportunity" />}
+            />
           </div>
           <DialogFooter>
             <DialogClose asChild>

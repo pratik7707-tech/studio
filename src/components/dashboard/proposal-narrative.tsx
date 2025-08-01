@@ -105,35 +105,30 @@ export function ProposalNarrative({
   };
 
 
-  const handleSave = (item: { type: string; text: string; id?: string }) => {
-    const newItem: ContextItem = {
-      id: item.id || `item-${Date.now()}`,
-      text: item.text,
-    };
+  const handleSave = (data: { context?: string; challenge?: string; opportunity?: string, id?: string }) => {
+    const { context: contextText, challenge: challengeText, opportunity: opportunityText, id } = data;
 
-    const updateState = (
-      setState: Dispatch<SetStateAction<ContextItem[]>>,
-      currentItems: ContextItem[]
-    ) => {
-      const existingIndex = currentItems.findIndex(i => i.id === newItem.id);
-      if (existingIndex > -1) {
-        const updatedItems = [...currentItems];
-        updatedItems[existingIndex] = newItem;
-        return updatedItems;
+    if (id) {
+       // This is an edit of a single item
+       const newItem = { id, text: contextText || challengeText || opportunityText || '' };
+       if (formType === 'Context') {
+         setContext(prev => prev.map(i => i.id === id ? newItem : i));
+       } else if (formType === 'Challenge') {
+        setChallenges(prev => prev.map(i => i.id === id ? newItem : i));
+       } else if (formType === 'Opportunity') {
+        setOpportunities(prev => prev.map(i => i.id === id ? newItem : i));
+       }
+    } else {
+      // This is for adding new items
+      if (contextText) {
+        setContext(prev => [...prev, { id: `context-${Date.now()}`, text: contextText }]);
       }
-      // If adding, remove from other lists first to ensure no duplicates if type changed
-      setContext(context.filter(i => i.id !== newItem.id));
-      setChallenges(challenges.filter(i => i.id !== newItem.id));
-      setOpportunities(opportunities.filter(i => i.id !== newItem.id));
-      return [...currentItems, newItem];
-    };
-
-    if (item.type === 'Context') {
-      setContext(prev => updateState(setContext, prev));
-    } else if (item.type === 'Challenge') {
-      setChallenges(prev => updateState(setChallenges, prev));
-    } else if (item.type === 'Opportunity') {
-      setOpportunities(prev => updateState(setOpportunities, prev));
+      if (challengeText) {
+        setChallenges(prev => [...prev, { id: `challenge-${Date.now()}`, text: challengeText }]);
+      }
+      if (opportunityText) {
+        setOpportunities(prev => [...prev, { id: `opportunity-${Date.now()}`, text: opportunityText }]);
+      }
     }
   };
 
@@ -151,7 +146,7 @@ export function ProposalNarrative({
           isOpen={isFormOpen}
           setIsOpen={setFormOpen}
           onSave={handleSave}
-          initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : { type: formType, text: '' }}
+          initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : undefined}
         />
       </div>
     );
@@ -187,7 +182,7 @@ export function ProposalNarrative({
         isOpen={isFormOpen}
         setIsOpen={setFormOpen}
         onSave={handleSave}
-        initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : { type: formType, text: '' }}
+        initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : undefined}
       />
     </div>
   );
