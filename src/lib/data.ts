@@ -15,18 +15,6 @@ export const initialPositionBudget: BudgetItem[] = [
   { id: 'pos4', category: 'Admin', item: 'Project Coordinator', amount: 65000 },
 ];
 
-export const initialContext: ContextItem[] = [
-  { id: 'ctx1', text: 'Multi-year grant from the National Science Foundation.' },
-  { id: 'ctx2', text: 'Project timeline is 36 months.' },
-  { id: 'ctx3', text: 'Collaboration with two partner universities.' },
-];
-
-export const initialChallenges: ContextItem[] = [
-  { id: 'ch1', text: 'Recruitment for specialized technical roles is competitive.' },
-  { id: 'ch2', text: 'Potential for increased cloud computing costs.' },
-];
-
-export const initialOpportunities: ContextItem[] = [
-  { id: 'op1', text: 'Leverage open-source software to reduce licensing fees.' },
-  { id: 'op2', text: 'Explore remote work options to widen talent pool.' },
-];
+export const initialContext: ContextItem[] = [];
+export const initialChallenges: ContextItem[] = [];
+export const initialOpportunities: ContextItem[] = [];
