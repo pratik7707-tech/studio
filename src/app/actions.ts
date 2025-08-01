@@ -1,7 +1,9 @@
 'use server';
 
 import { suggestBudgetImprovements } from '@/ai/flows/suggest-budget-improvements';
-import type { BudgetItem, ContextItem } from '@/lib/types';
+import type { BudgetItem, ContextItem, NarrativeData } from '@/lib/types';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 function formatBudgetDataToCSV(data: BudgetItem[]): string {
   const header = 'Category,Item,Amount\n';
@@ -34,5 +36,18 @@ export async function getAiSuggestionsAction(
   } catch (error) {
     console.error(error);
     return { success: false, error: 'Failed to get AI suggestions.' };
+  }
+}
+
+export async function saveNarrativeData(data: NarrativeData) {
+  try {
+    const docRef = await addDoc(collection(db, "narratives"), {
+      ...data,
+      createdAt: serverTimestamp(),
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Error adding document: ", error);
+    return { success: false, error: 'Failed to save data to Firestore.' };
   }
 }

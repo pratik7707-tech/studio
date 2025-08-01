@@ -1,7 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Plus, MoreVertical, Edit, Trash2 } from 'lucide-react';
-import type { ContextItem } from '@/lib/types';
+import type { ContextItem, NarrativeData } from '@/lib/types';
 import type { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
 import { ContextForm } from './context-form';
@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { saveNarrativeData } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 interface NarrativeSectionProps {
   title: string;
@@ -84,6 +86,7 @@ export function ProposalNarrative({
   const [isFormOpen, setFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContextItem | undefined>(undefined);
   const [formType, setFormType] = useState<'Context' | 'Challenge' | 'Opportunity'>('Context');
+  const { toast } = useToast();
 
   const handleAdd = (type: 'Context' | 'Challenge' | 'Opportunity') => {
     setEditingItem(undefined);
@@ -105,8 +108,24 @@ export function ProposalNarrative({
   };
 
 
-  const handleSave = (data: { context?: string; challenge?: string; opportunity?: string, id?: string }) => {
+  const handleSave = async (data: NarrativeData) => {
     const { context: contextText, challenge: challengeText, opportunity: opportunityText, id } = data;
+    
+    const result = await saveNarrativeData(data);
+
+    if (result.success) {
+      toast({
+        title: 'Success!',
+        description: 'Your narrative data has been saved.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+      return;
+    }
 
     if (id) {
        // This is an edit of a single item

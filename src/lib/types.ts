@@ -9,3 +9,10 @@ export interface ContextItem {
   id: string;
   text: string;
 }
+
+export interface NarrativeData {
+  id?: string;
+  context?: string;
+  challenge?: string;
+  opportunity?: string;
+}
