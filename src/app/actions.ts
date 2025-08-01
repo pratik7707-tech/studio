@@ -3,7 +3,7 @@
 import { suggestBudgetImprovements } from '@/ai/flows/suggest-budget-improvements';
 import type { BudgetItem, ContextItem } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 
 function formatBudgetDataToCSV(data: BudgetItem[]): string {
   const header = 'Category,Item,Amount\n';
@@ -80,11 +80,26 @@ export async function deleteNarrativeItem(id: string) {
   }
 }
 
+function serializeFirestoreTimestamp(timestamp: Timestamp): string {
+  return timestamp.toDate().toISOString();
+}
+
 export async function getNarrativeItems() {
   try {
     const q = query(collection(db, "narratives"), orderBy("createdAt"));
     const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as ContextItem[];
+    const data = querySnapshot.docs.map(doc => {
+      const docData = doc.data();
+      const serializedData: { [key: string]: any } = { id: doc.id };
+      for (const key in docData) {
+        if (docData[key] instanceof Timestamp) {
+          serializedData[key] = serializeFirestoreTimestamp(docData[key]);
+        } else {
+          serializedData[key] = docData[key];
+        }
+      }
+      return serializedData;
+    }) as ContextItem[];
     return { success: true, data };
   } catch (error) {
     console.error("Error getting documents: ", error);
