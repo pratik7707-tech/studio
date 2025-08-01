@@ -30,7 +30,11 @@ interface ContextFormProps {
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: FormData) => void;
   isSaving: boolean;
-  initialData?: ContextItem;
+  initialData?: {
+    context: ContextItem[],
+    challenges: ContextItem[],
+    opportunities: ContextItem[]
+  };
 }
 
 export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }: ContextFormProps) {
@@ -38,23 +42,23 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     handleSubmit,
     control,
     reset,
-    formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { context: '', challenge: '', opportunity: '' },
   });
 
-  const isEditing = !!initialData;
+  const isEditing = !!initialData && (initialData.context.length > 0 || initialData.challenges.length > 0 || initialData.opportunities.length > 0);
 
   useEffect(() => {
     if (isOpen) {
-      if (initialData) {
+        const contextText = initialData?.context.map(c => c.text).join('\\n') || '';
+        const challengeText = initialData?.challenges.map(c => c.text).join('\\n') || '';
+        const opportunityText = initialData?.opportunities.map(c => c.text).join('\\n') || '';
         reset({
-          [initialData.type.toLowerCase()]: initialData.text,
+          context: contextText,
+          challenge: challengeText,
+          opportunity: opportunityText,
         });
-      } else {
-        reset({ context: '', challenge: '', opportunity: '' });
-      }
     }
   }, [isOpen, initialData, reset]);
 
@@ -66,19 +70,9 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Item' : 'Add New Items'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Narrative' : 'Add Narrative'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {isEditing ? (
-             <div className="space-y-2">
-                <Label htmlFor={initialData.type.toLowerCase()}>{initialData.type}</Label>
-                <Controller
-                  name={initialData.type.toLowerCase() as "context" | "challenge" | "opportunity"}
-                  control={control}
-                  render={({ field }) => <Textarea {...field} placeholder={`Enter ${initialData.type.toLowerCase()}`} />}
-                />
-              </div>
-          ) : (
             <>
               <div className="space-y-2">
                 <Label htmlFor="context">Context</Label>
@@ -105,7 +99,6 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
                 />
               </div>
             </>
-          )}
 
           <DialogFooter>
             <DialogClose asChild>
