@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, ChevronDown, Filter, MoreVertical } from 'lucide-react';
+import { Bell, ChevronDown, MoreVertical, X } from 'lucide-react';
 import { UnfpaLogo, QuantumPlusLogo } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ScrollArea } from '../ui/scroll-area';
 
 type NavItem = 'RRP Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
 
@@ -49,9 +52,30 @@ export function Header() {
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Bell className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-medium">Notifications</h3>
+                </div>
+                <ScrollArea className="h-64">
+                   <Accordion type="single" collapsible defaultValue="item-1">
+                    <AccordionItem value="item-1">
+                      <AccordionTrigger>No New Role Request(s)</AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-sm text-muted-foreground p-4">
+                          No notifications available
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </ScrollArea>
+              </PopoverContent>
+            </Popover>
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
                 <AvatarImage src="https://github.com/shadcn.png" />
