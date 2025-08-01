@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { ContextItem } from '@/lib/types';
+import type { NarrativeData } from '@/lib/types';
 
 const formSchema = z.object({
   context: z.string().optional(),
@@ -30,11 +30,7 @@ interface ContextFormProps {
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: FormData) => void;
   isSaving: boolean;
-  initialData?: {
-    context: ContextItem[],
-    challenges: ContextItem[],
-    opportunities: ContextItem[]
-  };
+  initialData?: NarrativeData;
 }
 
 export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }: ContextFormProps) {
@@ -47,17 +43,14 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     defaultValues: { context: '', challenge: '', opportunity: '' },
   });
 
-  const isEditing = !!initialData && (initialData.context.length > 0 || initialData.challenges.length > 0 || initialData.opportunities.length > 0);
+  const isEditing = !!initialData && (!!initialData.context || !!initialData.challenge || !!initialData.opportunity);
 
   useEffect(() => {
     if (isOpen) {
-        const contextText = initialData?.context.map(c => c.text).join('\\n') || '';
-        const challengeText = initialData?.challenges.map(c => c.text).join('\\n') || '';
-        const opportunityText = initialData?.opportunities.map(c => c.text).join('\\n') || '';
         reset({
-          context: contextText,
-          challenge: challengeText,
-          opportunity: opportunityText,
+          context: initialData?.context || '',
+          challenge: initialData?.challenge || '',
+          opportunity: initialData?.opportunity || '',
         });
     }
   }, [isOpen, initialData, reset]);

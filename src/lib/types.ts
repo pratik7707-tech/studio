@@ -5,15 +5,10 @@ export interface BudgetItem {
   amount: number;
 }
 
-export interface ContextItem {
-  id: string;
-  text: string;
-  type: 'Context' | 'Challenge' | 'Opportunity';
-}
-
 export interface NarrativeData {
-  id?: string;
-  context?: string;
-  challenge?: string;
-  opportunity?: string;
+  id: string;
+  context: string;
+  challenge: string;
+  opportunity: string;
+  updatedAt?: string;
 }

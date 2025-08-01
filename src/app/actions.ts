@@ -1,43 +1,40 @@
 'use server';
 
-import type { BudgetItem, ContextItem } from '@/lib/types';
+import type { BudgetItem, NarrativeData } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 
-export async function saveNarrativeItem(item: {
-  id?: string;
-  text: string;
-  type: 'Context' | 'Challenge' | 'Opportunity';
+const NARRATIVE_DOC_ID = "narrative_1";
+
+export async function saveNarrative(data: {
+  context: string;
+  challenge: string;
+  opportunity: string;
 }) {
   try {
-    if (item.id) {
-      // Update existing document
-      const docRef = doc(db, 'narratives', item.id);
-      await updateDoc(docRef, {
-        text: item.text,
-        type: item.type,
-        updatedAt: serverTimestamp(),
-      });
-      return { success: true, id: item.id };
-    } else {
-      // Add new document
-      const docRef = await addDoc(collection(db, 'narratives'), {
-        text: item.text,
-        type: item.type,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      return { success: true, id: docRef.id };
+    const docRef = doc(db, 'narratives', NARRATIVE_DOC_ID);
+    await setDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+    
+    const newDoc = await getDoc(docRef);
+    const newDocData = newDoc.data();
+    if (newDocData) {
+        return { success: true, data: serializeNarrativeData(newDocData) };
     }
+    return { success: false, error: "Failed to retrieve saved data." };
+
   } catch (error) {
     console.error('Error saving document: ', error);
     return { success: false, error: 'Failed to save data to Firestore.' };
   }
 }
 
-export async function deleteNarrativeItem(id: string) {
+
+export async function deleteNarrative() {
   try {
-    await deleteDoc(doc(db, "narratives", id));
+    await deleteDoc(doc(db, "narratives", NARRATIVE_DOC_ID));
     return { success: true };
   } catch (error) {
     console.error("Error deleting document: ", error);
@@ -49,25 +46,32 @@ function serializeFirestoreTimestamp(timestamp: Timestamp): string {
   return timestamp.toDate().toISOString();
 }
 
-export async function getNarrativeItems() {
-  try {
-    const q = query(collection(db, "narratives"), orderBy("createdAt"));
-    const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map(doc => {
-      const docData = doc.data();
-      const serializedData: { [key: string]: any } = { id: doc.id };
-      for (const key in docData) {
+function serializeNarrativeData(docData: any): NarrativeData {
+    const serializedData: { [key: string]: any } = { id: NARRATIVE_DOC_ID };
+    for (const key in docData) {
         if (docData[key] instanceof Timestamp) {
-          serializedData[key] = serializeFirestoreTimestamp(docData[key]);
+            serializedData[key] = serializeFirestoreTimestamp(docData[key]);
         } else {
-          serializedData[key] = docData[key];
+            serializedData[key] = docData[key];
         }
-      }
-      return serializedData;
-    }) as ContextItem[];
-    return { success: true, data };
+    }
+    return serializedData as NarrativeData;
+}
+
+
+export async function getNarrative() {
+  try {
+    const docRef = doc(db, 'narratives', NARRATIVE_DOC_ID);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { success: true, data: serializeNarrativeData(docSnap.data()) };
+    } else {
+      // Return a default structure if the document doesn't exist
+      return { success: true, data: { id: NARRATIVE_DOC_ID, context: '', challenge: '', opportunity: '' } };
+    }
   } catch (error) {
-    console.error("Error getting documents: ", error);
+    console.error("Error getting document: ", error);
     return { success: false, error: "Failed to fetch data from Firestore." };
   }
 }

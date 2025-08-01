@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { BudgetItem, ContextItem } from '@/lib/types';
-import { initialOperatingBudget, initialPositionBudget, initialContext, initialChallenges, initialOpportunities } from '@/lib/data';
+import type { BudgetItem } from '@/lib/types';
+import { initialOperatingBudget, initialPositionBudget } from '@/lib/data';
 import { Header } from './header';
 import { MetricCard } from './metric-card';
 import { BudgetDetails } from './budget-details';
@@ -11,9 +11,6 @@ import { Wallet, Coins, Users } from 'lucide-react';
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>(initialOperatingBudget);
   const [positionBudget, setPositionBudget] = useState<BudgetItem[]>(initialPositionBudget);
-  const [context, setContext] = useState<ContextItem[]>(initialContext);
-  const [challenges, setChallenges] = useState<ContextItem[]>(initialChallenges);
-  const [opportunities, setOpportunities] = useState<ContextItem[]>(initialOpportunities);
 
   const totalOperatingBudget = useMemo(() => operatingBudget.reduce((sum, item) => sum + item.amount, 0), [operatingBudget]);
   const totalPositionBudget = useMemo(() => positionBudget.reduce((sum, item) => sum + item.amount, 0), [positionBudget]);
@@ -52,12 +49,6 @@ export function BudgetPageClient() {
               setOperatingBudget={setOperatingBudget}
               positionBudget={positionBudget}
               setPositionBudget={setPositionBudget}
-              context={context}
-              setContext={setContext}
-              challenges={challenges}
-              setChallenges={setChallenges}
-              opportunities={opportunities}
-              setOpportunities={setOpportunities}
             />
           </div>
         </div>
