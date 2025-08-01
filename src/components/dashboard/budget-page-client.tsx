@@ -6,11 +6,10 @@ import { initialOperatingBudget, initialPositionBudget, initialContext, initialC
 import { Header } from './header';
 import { MetricCard } from './metric-card';
 import { BudgetDetails } from './budget-details';
-import { ContextCard } from './context-card';
 import { getAiSuggestionsAction } from '@/app/actions';
 import { AiSuggestionDialog } from './ai-suggestion-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Wallet, Coins, Users, Lightbulb, AlertTriangle, CheckCircle, FileText, Building2, UserCheck, MoreVertical } from 'lucide-react';
+import { Wallet, Coins, Users, Lightbulb, AlertTriangle, CheckCircle, FileText, Building2, UserCheck, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -101,8 +100,8 @@ export function BudgetPageClient() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <DropdownMenuItem><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
+                            <DropdownMenuItem><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </CardHeader>
@@ -110,6 +109,14 @@ export function BudgetPageClient() {
                     <div>
                         <h3 className='font-semibold text-gray-700'>Context</h3>
                         <p className='text-muted-foreground text-sm'>{context.map(c => c.text).join(' ')}</p>
+                    </div>
+                     <div>
+                        <h3 className='font-semibold text-gray-700'>Challenges</h3>
+                        <p className='text-muted-foreground text-sm'>{challenges.length > 0 ? challenges.map(c => c.text).join(' ') : 'No challenges identified.'}</p>
+                    </div>
+                     <div>
+                        <h3 className='font-semibold text-gray-700'>Opportunities</h3>
+                        <p className='text-muted-foreground text-sm'>{opportunities.length > 0 ? opportunities.map(c => c.text).join(' ') : 'No opportunities identified.'}</p>
                     </div>
                 </CardContent>
             </Card>
