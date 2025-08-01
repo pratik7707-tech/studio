@@ -14,6 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   context: z.string().optional(),
@@ -27,6 +28,7 @@ interface ContextFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: FormData) => void;
+  isSaving: boolean;
   initialData?: {
     id?: string;
     type: 'Context' | 'Challenge' | 'Opportunity';
@@ -34,7 +36,7 @@ interface ContextFormProps {
   };
 }
 
-export function ContextForm({ isOpen, setIsOpen, onSave, initialData }: ContextFormProps) {
+export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }: ContextFormProps) {
   const {
     handleSubmit,
     control,
@@ -59,7 +61,6 @@ export function ContextForm({ isOpen, setIsOpen, onSave, initialData }: ContextF
 
   const onSubmit = (data: FormData) => {
     onSave(data);
-    setIsOpen(false);
   };
 
   return (
@@ -95,11 +96,14 @@ export function ContextForm({ isOpen, setIsOpen, onSave, initialData }: ContextF
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={isSaving}>
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={isSaving}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -86,6 +86,7 @@ export function ProposalNarrative({
   const [isFormOpen, setFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContextItem | undefined>(undefined);
   const [formType, setFormType] = useState<'Context' | 'Challenge' | 'Opportunity'>('Context');
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   const handleAdd = (type: 'Context' | 'Challenge' | 'Opportunity') => {
@@ -109,6 +110,7 @@ export function ProposalNarrative({
 
 
   const handleSave = async (data: Omit<NarrativeData, 'id'> & { id?: string }) => {
+    setIsSaving(true);
     let saveData: Omit<NarrativeData, 'id'> & { id?: string } = { ...data };
     
     if (editingItem && editingItem.id) {
@@ -119,19 +121,21 @@ export function ProposalNarrative({
     }
     
     const result = await saveNarrativeData(saveData);
+    setIsSaving(false);
 
     if (result.success && result.id) {
       toast({
         title: 'Success!',
         description: 'Your narrative data has been saved.',
       });
+      setFormOpen(false);
 
       const { id, context: contextText, challenge: challengeText, opportunity: opportunityText } = saveData;
       
       if (editingItem && id) {
          // This is an edit of a single item
          const newText = contextText || challengeText || opportunityText || ''
-         const newItem = { id, text: newText };
+         const newItem = { id, text: newText, type: formType };
          if (formType === 'Context') {
            setContext(prev => prev.map(i => i.id === id ? newItem : i));
          } else if (formType === 'Challenge') {
@@ -176,6 +180,7 @@ export function ProposalNarrative({
           isOpen={isFormOpen}
           setIsOpen={setFormOpen}
           onSave={handleSave}
+          isSaving={isSaving}
           initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : undefined}
         />
       </div>
@@ -212,6 +217,7 @@ export function ProposalNarrative({
         isOpen={isFormOpen}
         setIsOpen={setFormOpen}
         onSave={handleSave}
+        isSaving={isSaving}
         initialData={editingItem ? { text: editingItem.text, type: formType, id: editingItem.id } : undefined}
       />
     </div>
