@@ -1,13 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bell, ChevronDown, Filter, MoreVertical } from 'lucide-react';
 import { UnfpaLogo, QuantumPlusLogo } from '@/components/icons';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+
+type NavItem = 'Results and Resources Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
 
 export function Header() {
+  const [activeNav, setActiveNav] = useState<NavItem>('Integrated Budget');
+
+  const navItems: NavItem[] = [
+    'Results and Resources Plan',
+    'Partner Implementation',
+    'Integrated Budget',
+    'Admin'
+  ];
+
   return (
     <>
       <header className="bg-white sticky top-0 z-20 shadow-sm">
@@ -16,13 +29,23 @@ export function Header() {
           <div className="flex items-center gap-6">
             <div className='flex items-center gap-2'>
               <UnfpaLogo className="h-8 w-auto" />
-              <QuantumPlusLogo className="h-8 w-auto" />
+              <QuantumPlusLogo className="h-8" />
             </div>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-              <a href="#" className="text-gray-600 hover:text-primary">Results and Resources Plan</a>
-              <a href="#" className="text-gray-600 hover:text-primary">Partner Implementation</a>
-              <a href="#" className="text-primary font-semibold hover:text-primary">Integrated Budget</a>
-              <a href="#" className="text-gray-600 hover:text-primary">Admin</a>
+            <nav className="hidden md:flex items-center gap-6 text-sm font-medium h-full">
+              {navItems.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setActiveNav(item)}
+                  className={cn(
+                    "h-full flex items-center border-b-2 transition-colors",
+                    activeNav === item
+                      ? "text-primary font-semibold border-primary"
+                      : "text-gray-600 border-transparent hover:text-primary"
+                  )}
+                >
+                  {item}
+                </button>
+              ))}
             </nav>
           </div>
           <div className="flex items-center gap-4">
