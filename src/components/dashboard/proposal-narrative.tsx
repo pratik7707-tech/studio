@@ -110,65 +110,45 @@ export function ProposalNarrative({
 
   const handleSave = async (data: Partial<Omit<NarrativeData, 'id'>>) => {
     setIsSaving(true);
-    
-    // Logic for editing an existing item
-    if (editingItem && editingItem.id) {
-        const typeKey = editingItem.type.toLowerCase() as keyof typeof data;
-        const newText = data[typeKey];
-        if (typeof newText !== 'string') {
-            setIsSaving(false);
-            return;
-        }
-        
-        // This is a simplified approach: assuming one item (context, challenge, etc.) per document.
-        // If your model is one document for ALL context, challenges, etc, this will need adjustment.
-        // For now, let's assume one item per doc. We need the doc ID.
-        // The ContextItem id needs to map to a Firestore document ID.
-        // Let's assume item.id is the document ID for now.
-        const result = await saveNarrativeData({
-            id: editingItem.id,
-            [typeKey]: newText
-        });
-
-        setIsSaving(false);
-        if (result.success && result.id) {
-             toast({ title: 'Success!', description: 'Your item has been updated.' });
-             setFormOpen(false);
-             const updatedItem = { id: result.id, text: newText, type: editingItem.type };
-             
-             if (editingItem.type === 'Context') setContext(prev => prev.map(i => i.id === editingItem.id ? updatedItem : i));
-             else if (editingItem.type === 'Challenge') setChallenges(prev => prev.map(i => i.id === editingItem.id ? updatedItem : i));
-             else if (editingItem.type === 'Opportunity') setOpportunities(prev => prev.map(i => i.id === editingItem.id ? updatedItem : i));
-
-        } else {
-            toast({ variant: 'destructive', title: 'Error', description: result.error });
-        }
-        return;
-    }
-
-    // Logic for adding new items
     try {
-        if (data.context) {
-            const result = await saveNarrativeData({ context: data.context });
-            if (result.success && result.id) {
-                setContext(prev => [...prev, { id: result.id, text: data.context!, type: 'Context' }]);
-            } else throw new Error(result.error);
-        }
-        if (data.challenge) {
-            const result = await saveNarrativeData({ challenge: data.challenge });
-            if (result.success && result.id) {
-                setChallenges(prev => [...prev, { id: result.id, text: data.challenge!, type: 'Challenge' }]);
-            } else throw new Error(result.error);
-        }
-        if (data.opportunity) {
-            const result = await saveNarrativeData({ opportunity: data.opportunity });
-            if (result.success && result.id) {
-                setOpportunities(prev => [...prev, { id: result.id, text: data.opportunity!, type: 'Opportunity' }]);
-            } else throw new Error(result.error);
-        }
+      const promises = [];
+      
+      if (data.context) {
+        promises.push(saveNarrativeData({ text: data.context, type: 'Context' }));
+      }
+      if (data.challenge) {
+        promises.push(saveNarrativeData({ text: data.challenge, type: 'Challenge' }));
+      }
+      if (data.opportunity) {
+        promises.push(saveNarrativeData({ text: data.opportunity, type: 'Opportunity' }));
+      }
 
-        toast({ title: 'Success!', description: 'Your items have been saved.' });
-        setFormOpen(false);
+      const results = await Promise.all(promises);
+
+      let hadError = false;
+      results.forEach(result => {
+        if (result.success && result.id && result.data) {
+          const newItem: ContextItem = { id: result.id, text: result.data.text, type: result.data.type as any };
+          if (newItem.type === 'Context') {
+            setContext(prev => [...prev, newItem]);
+          } else if (newItem.type === 'Challenge') {
+            setChallenges(prev => [...prev, newItem]);
+          } else if (newItem.type === 'Opportunity') {
+            setOpportunities(prev => [...prev, newItem]);
+          }
+        } else {
+          hadError = true;
+          console.error("Failed to save item:", result.error);
+        }
+      });
+
+      if (hadError) {
+         toast({ variant: 'destructive', title: 'Error', description: 'One or more items failed to save.' });
+      } else {
+         toast({ title: 'Success!', description: 'Your items have been saved.' });
+         setFormOpen(false);
+      }
+
     } catch (e: any) {
         toast({ variant: 'destructive', title: 'Error', description: e.message || 'Failed to save one or more items.' });
     } finally {

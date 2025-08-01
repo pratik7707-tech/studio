@@ -8,7 +8,7 @@ export interface BudgetItem {
 export interface ContextItem {
   id: string;
   text: string;
-  type?: 'Context' | 'Challenge' | 'Opportunity';
+  type: 'Context' | 'Challenge' | 'Opportunity';
 }
 
 export interface NarrativeData {

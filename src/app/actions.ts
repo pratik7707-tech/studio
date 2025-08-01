@@ -39,28 +39,20 @@ export async function getAiSuggestionsAction(
   }
 }
 
-export async function saveNarrativeData(data: Omit<NarrativeData, 'id'> & { id?: string }) {
+export async function saveNarrativeData(data: { text: string, type: string }) {
   try {
-    const { id, ...saveData } = data;
-    
-    let docId = id;
+    const saveData = {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
 
-    if (docId) {
-      const docRef = doc(db, 'narratives', docId);
-      await updateDoc(docRef, { ...saveData, updatedAt: serverTimestamp() });
-    } else {
-      const docRef = await addDoc(collection(db, "narratives"), {
-        ...saveData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      docId = docRef.id;
-    }
+    const docRef = await addDoc(collection(db, "narratives"), saveData);
     
-    return { success: true, id: docId };
+    return { success: true, id: docRef.id, data: data };
 
   } catch (error) {
-    console.error("Error adding/updating document: ", error);
+    console.error("Error adding document: ", error);
     return { success: false, error: 'Failed to save data to Firestore.' };
   }
 }
