@@ -191,9 +191,9 @@ export function ProposalNarrative({
       } else {
         // This is a new item (or items)
         const itemsToSave: { text: string, type: 'Context' | 'Challenge' | 'Opportunity' }[] = [];
-        if (data.context) itemsToSave.push({ text: data.context, type: 'Context' });
-        if (data.challenge) itemsToSave.push({ text: data.challenge, type: 'Challenge' });
-        if (data.opportunity) itemsToSave.push({ text: data.opportunity, type: 'Opportunity' });
+        if (data.context && data.context.trim()) itemsToSave.push({ text: data.context, type: 'Context' });
+        if (data.challenge && data.challenge.trim()) itemsToSave.push({ text: data.challenge, type: 'Challenge' });
+        if (data.opportunity && data.opportunity.trim()) itemsToSave.push({ text: data.opportunity, type: 'Opportunity' });
   
         if (itemsToSave.length === 0) {
           toast({ title: 'Nothing to save', description: 'All fields were empty.' });
@@ -203,7 +203,7 @@ export function ProposalNarrative({
               const result = await saveNarrativeItem(item);
               if (result.success && result.id) {
                 const setter = getSetter(item.type);
-                const newItem = { id: result.id, ...item, createdAt: new Date().toISOString() };
+                const newItem = { ...item, id: result.id, createdAt: new Date().toISOString() };
                 setter(prev => [...prev, newItem]);
               } else {
                 hadError = true;
