@@ -40,8 +40,8 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
   };
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="shadow-none border-none">
+      <CardHeader className="flex flex-row items-center justify-between p-0 mb-4">
         <div>
           <CardTitle className="font-headline">{title}</CardTitle>
           <CardDescription>Details of the {title.toLowerCase()}.</CardDescription>
@@ -51,7 +51,7 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
           Add Item
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <div className="rounded-md border">
           <Table>
             <TableHeader>

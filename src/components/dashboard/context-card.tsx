@@ -45,7 +45,7 @@ export function ContextCard({ title, items, setItems, icon: Icon }: ContextCardP
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm bg-white">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-3">
           <Icon className="w-5 h-5 text-primary" />

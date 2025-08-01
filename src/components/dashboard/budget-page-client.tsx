@@ -10,7 +10,10 @@ import { ContextCard } from './context-card';
 import { getAiSuggestionsAction } from '@/app/actions';
 import { AiSuggestionDialog } from './ai-suggestion-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Target, Briefcase, Lightbulb, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Wallet, Coins, Users, Lightbulb, AlertTriangle, CheckCircle, FileText, Building2, UserCheck, MoreVertical } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>(initialOperatingBudget);
@@ -52,42 +55,64 @@ export function BudgetPageClient() {
 
   const totalOperatingBudget = useMemo(() => operatingBudget.reduce((sum, item) => sum + item.amount, 0), [operatingBudget]);
   const totalPositionBudget = useMemo(() => positionBudget.reduce((sum, item) => sum + item.amount, 0), [positionBudget]);
-  const totalBudget = totalOperatingBudget + totalPositionBudget;
+  const totalBudget = 52951220.77 + 5000000;
+  const totalEnvelope = 72270140.00;
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number, withCents = true) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: withCents ? 2 : 0,
+      maximumFractionDigits: withCents ? 2 : 0,
     }).format(amount);
   };
   
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header onGetAiSuggestions={handleGetAiSuggestions} />
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <Header />
 
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
         <div className="grid gap-6 mb-6 md:grid-cols-3">
-          <MetricCard title="Total Budget vs Total Envelope" value={formatCurrency(totalBudget)} icon={DollarSign} />
-          <MetricCard title="Total Institutional Budget" value={formatCurrency(5000000)} description="Target" icon={Target} />
-          <MetricCard title="Total GRP Budget" value={formatCurrency(2500000)} description="Allocated" icon={Briefcase} />
+          <MetricCard 
+            title="Total Budget vs Total Envelope" 
+            value={`${formatCurrency(totalBudget)} / ${formatCurrency(totalEnvelope)}`} 
+            icon={Wallet} 
+            valueClassName="text-xl"
+            />
+          <MetricCard title="Total Institutional Budget" value={formatCurrency(52951220.77)} icon={Coins} />
+          <MetricCard title="Total GRP Budget" value={formatCurrency(5000000.00)} icon={Users} />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1">
             <BudgetDetails
               operatingBudget={operatingBudget}
               setOperatingBudget={setOperatingBudget}
               positionBudget={positionBudget}
               setPositionBudget={setPositionBudget}
             />
-          </div>
-          <div className="space-y-6">
-            <ContextCard title="Context" items={context} setItems={setContext} icon={Lightbulb} />
-            <ContextCard title="Challenges" items={challenges} setItems={setChallenges} icon={AlertTriangle} />
-            <ContextCard title="Opportunities" items={opportunities} setItems={setOpportunities} icon={CheckCircle} />
-          </div>
+            
+            <Card className="mt-6">
+                <CardHeader className='flex flex-row justify-between items-center'>
+                    <CardTitle>Context, Challenges & Opportunities</CardTitle>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </CardHeader>
+                <CardContent className='space-y-4'>
+                    <div>
+                        <h3 className='font-semibold text-gray-700'>Context</h3>
+                        <p className='text-muted-foreground text-sm'>{context.map(c => c.text).join(' ')}</p>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
       </main>
 
