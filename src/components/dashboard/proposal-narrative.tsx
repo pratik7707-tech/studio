@@ -107,7 +107,6 @@ export function ProposalNarrative({
 }: ProposalNarrativeProps) {
   const [isFormOpen, setFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContextItem | undefined>(undefined);
-  const [formType, setFormType] = useState<'Context' | 'Challenge' | 'Opportunity'>('Context');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -128,15 +127,13 @@ export function ProposalNarrative({
     loadData();
   }, [setContext, setChallenges, setOpportunities, toast]);
 
-  const handleAdd = (type: 'Context' | 'Challenge' | 'Opportunity') => {
+  const handleAdd = () => {
     setEditingItem(undefined);
-    setFormType(type);
     setFormOpen(true);
   };
 
   const handleEdit = (item: ContextItem) => {
     setEditingItem(item);
-    setFormType(item.type);
     setFormOpen(true);
   };
 
@@ -167,7 +164,6 @@ export function ProposalNarrative({
   
     try {
       if (editingItem) {
-        // This is an edit
         const textKey = editingItem.type.toLowerCase();
         const newText = data[textKey];
         if (typeof newText !== 'string' || !newText.trim()) {
@@ -189,7 +185,6 @@ export function ProposalNarrative({
           toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
       } else {
-        // This is a new item (or items)
         const itemsToSave: { text: string, type: 'Context' | 'Challenge' | 'Opportunity' }[] = [];
         if (data.context && data.context.trim()) itemsToSave.push({ text: data.context, type: 'Context' });
         if (data.challenge && data.challenge.trim()) itemsToSave.push({ text: data.challenge, type: 'Challenge' });
@@ -249,7 +244,7 @@ export function ProposalNarrative({
     return (
       <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
         <p className="mb-4 text-muted-foreground">To begin, please create your first Context, Challenges &amp; Opportunities</p>
-        <Button onClick={() => handleAdd('Context')}>
+        <Button onClick={handleAdd}>
           <Plus className="mr-2 h-4 w-4" />
           Add Context, Challenges &amp; Opportunities
         </Button>
@@ -270,7 +265,7 @@ export function ProposalNarrative({
         <CardTitle className="text-xl font-semibold text-gray-800">
           Context, Challenges &amp; Opportunities
         </CardTitle>
-         <Button variant="ghost" size="sm" onClick={() => handleAdd('Context')}>
+         <Button variant="ghost" size="sm" onClick={handleAdd}>
           <Plus className="mr-2 h-4 w-4" /> Add
         </Button>
       </CardHeader>
