@@ -12,7 +12,7 @@ export interface ContextItem {
 }
 
 export interface NarrativeData {
-  id: string;
+  id?: string;
   context?: string;
   challenge?: string;
   opportunity?: string;

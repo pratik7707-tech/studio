@@ -1,9 +1,9 @@
 'use server';
 
 import { suggestBudgetImprovements } from '@/ai/flows/suggest-budget-improvements';
-import type { BudgetItem, ContextItem, NarrativeData } from '@/lib/types';
+import type { BudgetItem, ContextItem } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 function formatBudgetDataToCSV(data: BudgetItem[]): string {
   const header = 'Category,Item,Amount\n';
@@ -39,20 +39,43 @@ export async function getAiSuggestionsAction(
   }
 }
 
-export async function saveNarrativeData(data: { text: string, type: string }) {
+export async function saveNarrativeItem(item: {
+  id?: string;
+  text: string;
+  type: 'Context' | 'Challenge' | 'Opportunity';
+}) {
   try {
-    const saveData = {
-      ...data,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-
-    const docRef = await addDoc(collection(db, "narratives"), saveData);
-    
-    return { success: true, id: docRef.id, data: data };
-
+    if (item.id) {
+      // Update existing document
+      const docRef = doc(db, 'narratives', item.id);
+      await updateDoc(docRef, {
+        text: item.text,
+        type: item.type,
+        updatedAt: serverTimestamp(),
+      });
+      return { success: true, id: item.id };
+    } else {
+      // Add new document
+      const docRef = await addDoc(collection(db, 'narratives'), {
+        text: item.text,
+        type: item.type,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      return { success: true, id: docRef.id };
+    }
   } catch (error) {
-    console.error("Error adding document: ", error);
+    console.error('Error saving document: ', error);
     return { success: false, error: 'Failed to save data to Firestore.' };
+  }
+}
+
+export async function deleteNarrativeItem(id: string) {
+  try {
+    await deleteDoc(doc(db, "narratives", id));
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting document: ", error);
+    return { success: false, error: "Failed to delete item from Firestore." };
   }
 }
