@@ -23,7 +23,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 interface NarrativeSectionProps {
@@ -143,84 +142,63 @@ export function ProposalNarrative({
 
   const handleSave = async (data: { [key: string]: string | undefined }) => {
     setIsSaving(true);
-    const itemToSave: ContextItem = {
-      id: editingItem?.id || '',
-      text: data[formType.toLowerCase()] || '',
-      type: formType,
+  
+    const getSetter = (type: 'Context' | 'Challenge' | 'Opportunity') => {
+      if (type === 'Context') return setContext;
+      if (type === 'Challenge') return setChallenges;
+      return setOpportunities;
     };
-    
-    if (!itemToSave.text) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Text cannot be empty.' });
-        setIsSaving(false);
-        return;
-    }
-
+  
     try {
-        if(editingItem) {
-          // This is an edit
-          const result = await saveNarrativeItem(itemToSave);
-          if (result.success && result.id) {
-             const updateState = (setter: Dispatch<SetStateAction<ContextItem[]>>) => {
-                setter(prev => prev.map(item => item.id === result.id ? {...item, text: itemToSave.text} : item));
-             }
-             if (itemToSave.type === 'Context') updateState(setContext);
-             if (itemToSave.type === 'Challenge') updateState(setChallenges);
-             if (itemToSave.type === 'Opportunity') updateState(setOpportunities);
-
-             toast({ title: 'Success!', description: 'Your item has been updated.' });
-             setFormOpen(false);
-          } else {
-            toast({ variant: 'destructive', title: 'Error', description: result.error });
-          }
-        } else {
-          // This is a new item (or items)
-           const promises = [];
-      
-          if (data.context) {
-            promises.push(saveNarrativeItem({ text: data.context, type: 'Context' }));
-          }
-          if (data.challenge) {
-            promises.push(saveNarrativeItem({ text: data.challenge, type: 'Challenge' }));
-          }
-          if (data.opportunity) {
-            promises.push(saveNarrativeItem({ text: data.opportunity, type: 'Opportunity' }));
-          }
-
-          const results = await Promise.all(promises);
-
-          let hadError = false;
-          results.forEach(result => {
-            if (result.success && result.id) {
-              const text = result.id === "context" ? data.context! : result.id === "challenge" ? data.challenge! : data.opportunity!
-              const type: 'Context' | 'Challenge' | 'Opportunity' = promises[results.indexOf(result)].type;
-
-              const newItem = {
-                id: result.id,
-                text: (data as any)[type.toLowerCase()],
-                type: type
-              }
-              
-              if (type === 'Context') setContext(prev => [...prev, newItem]);
-              else if (type === 'Challenge') setChallenges(prev => [...prev, newItem]);
-              else if (type === 'Opportunity') setOpportunities(prev => [...prev, newItem]);
-
-            } else {
-              hadError = true;
-              console.error("Failed to save item:", result.error);
-            }
-          });
-
-           if (hadError) {
-             toast({ variant: 'destructive', title: 'Error', description: 'One or more items failed to save.' });
-           } else {
-             toast({ title: 'Success!', description: 'Your items have been saved.' });
-             setFormOpen(false);
-           }
+      if (editingItem) {
+        // This is an edit
+        const itemToSave = { id: editingItem.id, text: data[formType.toLowerCase()] || '', type: formType };
+        if (!itemToSave.text) {
+          toast({ variant: 'destructive', title: 'Error', description: 'Text cannot be empty.' });
+          setIsSaving(false);
+          return;
         }
+        const result = await saveNarrativeItem(itemToSave);
+        if (result.success) {
+          const setter = getSetter(itemToSave.type);
+          setter(prev => prev.map(item => item.id === itemToSave.id ? { ...item, text: itemToSave.text } : item));
+          toast({ title: 'Success!', description: 'Your item has been updated.' });
+          setFormOpen(false);
+        } else {
+          toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
+      } else {
+        // This is a new item (or items)
+        const itemsToSave: { text: string, type: 'Context' | 'Challenge' | 'Opportunity' }[] = [];
+        if (data.context) itemsToSave.push({ text: data.context, type: 'Context' });
+        if (data.challenge) itemsToSave.push({ text: data.challenge, type: 'Challenge' });
+        if (data.opportunity) itemsToSave.push({ text: data.opportunity, type: 'Opportunity' });
+  
+        if (itemsToSave.length === 0) {
+          toast({ title: 'Nothing to save', description: 'All fields were empty.' });
+        } else {
+            let hadError = false;
+            for (const item of itemsToSave) {
+              const result = await saveNarrativeItem(item);
+              if (result.success && result.id) {
+                const setter = getSetter(item.type);
+                const newItem = { id: result.id, ...item };
+                setter(prev => [...prev, newItem]);
+              } else {
+                hadError = true;
+                toast({ variant: 'destructive', title: 'Error', description: `Failed to save ${item.type}: ${result.error}` });
+              }
+            }
+            if (!hadError) {
+              toast({ title: 'Success!', description: 'Your items have been saved.' });
+              setFormOpen(false);
+            }
+        }
+      }
     } catch (e: any) {
-        toast({ variant: 'destructive', title: 'Error', description: e.message || 'An unexpected error occurred.' });
+      toast({ variant: 'destructive', title: 'Error', description: e.message || 'An unexpected error occurred.' });
     } finally {
-        setIsSaving(false);
+      setIsSaving(false);
     }
   };
 
