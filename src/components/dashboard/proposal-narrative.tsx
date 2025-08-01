@@ -23,6 +23,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Skeleton } from '../ui/skeleton';
 
@@ -200,7 +201,7 @@ export function ProposalNarrative({
               const result = await saveNarrativeItem(item);
               if (result.success && result.id) {
                 const setter = getSetter(item.type);
-                const newItem = { id: result.id, ...item };
+                const newItem = { id: result.id, ...item, createdAt: new Date().toISOString() };
                 setter(prev => [...prev, newItem]);
               } else {
                 hadError = true;
