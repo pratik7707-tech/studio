@@ -22,6 +22,7 @@ import { CreatePositionSheet, PositionFormData } from "./create-position-sheet";
 interface PositionBudgetTableProps {
   data: BudgetItem[];
   isLoading: boolean;
+  onSavePosition: (formData: PositionFormData) => void;
 }
 
 const departmentMap: { [key: string]: string } = {
@@ -81,12 +82,11 @@ const exampleData = [
 ];
 
 
-export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProps) {
+export function PositionBudgetTable({ data, isLoading, onSavePosition }: PositionBudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleSave = (formData: PositionFormData) => {
-    console.log(formData);
-    // TODO: Connect to backend to save data
+    onSavePosition(formData);
     setIsSheetOpen(false);
   }
 
@@ -155,11 +155,11 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
                     </TableCell>
                   </TableRow>
                 ) : (
-                  exampleData.map(item => (
+                  data.map(item => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium flex items-center gap-1">
                         {departmentMap[item.department] || item.department}
-                        {(item.department === 'SAVINGS' || item.positionId === '010') && <ArrowUpRight className="h-4 w-4" />}
+                        {(item.variance) && <ArrowUpRight className="h-4 w-4" />}
                       </TableCell>
                       <TableCell className="flex items-center gap-1">
                         {item.positionId}

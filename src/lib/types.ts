@@ -19,6 +19,13 @@ export interface BudgetItem {
   justification?: string;
   variance?: number;
   effectiveDate?: string;
+  fundingSources?: {
+    source: string;
+    '2026'?: number;
+    '2027'?: number;
+    '2028'?: number;
+    '2029'?: number;
+  }[];
 }
 
 export interface NarrativeData {

@@ -10,6 +10,8 @@ import { Wallet, Coins, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { InitiativeFormData } from './create-initiative-sheet';
 import type { StandardInitiativeFormData } from './select-standard-initiative-sheet';
+import type { PositionFormData } from './create-position-sheet';
+import { format } from 'date-fns';
 
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>([]);
@@ -127,6 +129,48 @@ export function BudgetPageClient() {
     }
   };
 
+  const handleSavePosition = async (formData: PositionFormData) => {
+    const budgetItem: Omit<BudgetItem, 'id'> = {
+      type: 'position',
+      shortName: formData.positionTitle, // Using positionTitle for shortName
+      longName: formData.positionTitle, // Using positionTitle for longName
+      department: formData.department,
+      priority: 'Medium', // Defaulting, as it's not in the form
+      rationale: '', // Not in the form
+      risk: '', // Not in the form
+      amount: 428997.00, // TODO: This should be calculated
+      isStandard: false,
+
+      // Position-specific fields
+      positionId: formData.positionNumber,
+      grade: formData.grade,
+      location: formData.location,
+      positionTitle: formData.positionTitle,
+      justification: formData.justification,
+      variance: 428997.00, // TODO: this should be calculated
+      effectiveDate: format(formData.startDate, 'MMM yyyy'),
+      fundingSources: formData.fundingSources,
+    };
+
+    try {
+      const response = await fetch('/api/budgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(budgetItem),
+      });
+      const result = await response.json();
+      if (result.success) {
+        const fullItem = { ...budgetItem, id: result.data.id };
+        setPositionBudget(prev => [...prev, fullItem]);
+        toast({ title: "Success!", description: "Position added successfully." });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+      }
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to save position.' });
+    }
+  };
+
 
   const handleRemoveItem = async (id: string, type: 'operating' | 'position') => {
     try {
@@ -225,6 +269,7 @@ export function BudgetPageClient() {
               onRemoveItem={handleRemoveItem}
               onUpdateItem={handleUpdateItem}
               onSaveItem={handleSaveItem}
+              onSavePosition={handleSavePosition}
               isLoading={isLoading}
             />
           </div>

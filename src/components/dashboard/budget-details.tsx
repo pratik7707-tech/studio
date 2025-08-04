@@ -9,6 +9,7 @@ import { ProposalNarrative } from "./proposal-narrative";
 import type { InitiativeFormData } from "./create-initiative-sheet";
 import type { StandardInitiativeFormData } from "./select-standard-initiative-sheet";
 import { PositionBudgetTable } from "./position-budget-table";
+import type { PositionFormData } from "./create-position-sheet";
 
 
 interface BudgetDetailsProps {
@@ -19,6 +20,7 @@ interface BudgetDetailsProps {
   onRemoveItem: (id: string, type: 'operating' | 'position') => void;
   onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
   onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
+  onSavePosition: (formData: PositionFormData) => void;
   isLoading: boolean;
 }
 
@@ -55,6 +57,7 @@ export function BudgetDetails({
   onRemoveItem,
   onUpdateItem,
   onSaveItem,
+  onSavePosition,
   isLoading,
 }: BudgetDetailsProps) {
   return (
@@ -90,6 +93,7 @@ export function BudgetDetails({
         <PositionBudgetTable
           data={positionBudget}
           isLoading={isLoading}
+          onSavePosition={onSavePosition}
         />
       </TabsContent>
     </Tabs>
