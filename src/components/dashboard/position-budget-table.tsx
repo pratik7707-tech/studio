@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUpRight, Filter, Loader2, Search, Settings } from "lucide-react";
+import { ArrowUpRight, Filter, Loader2, Plus, Search, Settings } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 
@@ -74,7 +74,7 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
   return (
     <div>
       <Tabs defaultValue="proposed">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-start mb-4">
             <TabsList className="bg-transparent p-0">
                 <TabsTrigger value="baseline" className="pb-2 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none data-[state=active]:bg-transparent">Baseline</TabsTrigger>
                 <TabsTrigger value="proposed" className="pb-2 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none data-[state=active]:bg-transparent">Proposed Changes</TabsTrigger>
@@ -97,12 +97,21 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search" className="pl-8" />
                   </div>
-                  <Button>
-                      + New Position
-                  </Button>
               </div>
         </div>
+        <TabsContent value="baseline">
+           <div className="border rounded-lg">
+              {/* Baseline content will go here */}
+              <p className="p-4 text-center text-muted-foreground">Baseline position data is not yet available.</p>
+           </div>
+        </TabsContent>
         <TabsContent value="proposed">
+          <div className="flex justify-end mb-4">
+             <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                New Position
+              </Button>
+          </div>
           <div className="border rounded-lg">
             <Table>
               <TableHeader>
@@ -168,6 +177,12 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
                 <Button variant="outline" size="sm" disabled>{">>"}</Button>
               </div>
             </div>
+        </TabsContent>
+         <TabsContent value="final">
+           <div className="border rounded-lg">
+                {/* Final positions content will go here */}
+              <p className="p-4 text-center text-muted-foreground">Final position data is not yet available.</p>
+           </div>
         </TabsContent>
       </Tabs>
     </div>
