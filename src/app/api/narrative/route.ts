@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
-import mammoth from 'mammoth';
+import { parseDocx } from './parser';
 
 const NARRATIVE_DOC_ID = "narrative_1";
 
@@ -48,54 +48,7 @@ export async function POST(request: Request) {
 
     if (file) {
         const fileBuffer = Buffer.from(await file.arrayBuffer());
-        const { value: text } = await mammoth.extractRawText({ buffer: fileBuffer });
-        
-        const sections: { [key: string]: string[] } = {
-            Context: [],
-            Challenges: [],
-            Opportunities: [],
-        };
-
-        const lines = text.split('\n');
-        let currentSection: keyof typeof sections | null = null;
-        
-        const headings: (keyof typeof sections)[] = ['Context', 'Challenges', 'Opportunities'];
-
-        for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) continue;
-
-            let headingFound: keyof typeof sections | null = null;
-            let contentAfterHeading = '';
-            
-            for (const heading of headings) {
-                if (trimmedLine.toLowerCase().startsWith(heading.toLowerCase())) {
-                    headingFound = heading;
-                    const headingIndex = trimmedLine.toLowerCase().indexOf(heading.toLowerCase());
-                    contentAfterHeading = trimmedLine.substring(headingIndex + heading.length).trim();
-                    break;
-                }
-            }
-            
-            if (headingFound) {
-                currentSection = headingFound;
-                if (contentAfterHeading.startsWith(':')) {
-                    contentAfterHeading = contentAfterHeading.substring(1).trim();
-                }
-                if (contentAfterHeading) {
-                    sections[currentSection].push(contentAfterHeading);
-                }
-            } else if (currentSection) {
-                sections[currentSection].push(trimmedLine);
-            }
-        }
-
-        dataToSave = {
-            Context: sections.Context.join('\n').trim(),
-            Challenges: sections.Challenges.join('\n').trim(),
-            Opportunities: sections.Opportunities.join('\n').trim(),
-        };
-
+        dataToSave = await parseDocx(fileBuffer);
     } else {
         const body = await request.json().catch(() => formData.get('jsonData'));
         const jsonData = typeof body === 'string' ? JSON.parse(body) : body;
