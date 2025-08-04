@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BudgetTable } from './budget-table';
 import type { BudgetItem } from '@/lib/types';
 import type { Dispatch, SetStateAction } from 'react';
-import { FileText, Building2, UserCheck } from "lucide-react";
+import { FileText, Coins, Users } from "lucide-react";
 import { ProposalNarrative } from "./proposal-narrative";
 
 
@@ -26,10 +26,10 @@ export function BudgetDetails({
           <FileText className="h-5 w-5" /> Proposal Narrative
         </TabsTrigger>
         <TabsTrigger value="operating" className="flex gap-2 justify-start data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none data-[state=active]:bg-transparent">
-          <Building2 className="h-5 w-5" /> Operating Budget
+          <Coins className="h-5 w-5" /> Operating Budget
         </TabsTrigger>
         <TabsTrigger value="position" className="flex gap-2 justify-start data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none data-[state=active]:bg-transparent">
-          <UserCheck className="h-5 w-5" /> Position Budget
+          <Users className="h-5 w-5" /> Position Budget
         </TabsTrigger>
       </TabsList>
       <TabsContent value="narrative" className="mt-4">

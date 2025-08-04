@@ -1,12 +1,13 @@
 'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, TriangleAlert } from "lucide-react";
+import { Plus, Trash2, TriangleAlert, Filter } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
 import type { Dispatch, SetStateAction } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BudgetTableProps {
   title: string;
@@ -41,15 +42,29 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
 
   return (
     <Card className="shadow-none border-none">
-      <CardHeader className="flex flex-row items-center justify-between p-0 mb-4">
-        <div>
-          <CardTitle className="font-headline">{title}</CardTitle>
-          <CardDescription>Details of the {title.toLowerCase()}.</CardDescription>
+      <CardHeader className="p-0 mb-4">
+        <div className="flex items-center justify-between">
+            <CardTitle className="font-headline text-lg">{title} Initiatives</CardTitle>
+            <div className="flex items-center gap-2">
+                 <Button variant="outline">
+                    <Filter className="mr-2 h-4 w-4" />
+                    All
+                </Button>
+                <Select defaultValue="all">
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Departments</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Button onClick={handleAddItem}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create
+                </Button>
+            </div>
         </div>
-        <Button size="sm" onClick={handleAddItem}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Item
-        </Button>
+        <p className="text-sm text-muted-foreground mt-1">Total Amount: {formatCurrency(totalAmount)}</p>
       </CardHeader>
       <CardContent className="p-0">
         <div className="rounded-md border">
