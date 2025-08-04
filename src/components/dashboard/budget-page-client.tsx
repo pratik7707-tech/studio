@@ -68,6 +68,7 @@ export function BudgetPageClient() {
       ...newItem,
       type,
       amount: 0,
+      isStandard: false,
     };
 
     try {
@@ -100,6 +101,7 @@ export function BudgetPageClient() {
       longName: newItem.standardInitiative,
       type,
       amount: 0,
+      isStandard: true,
     };
 
     try {

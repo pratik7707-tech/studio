@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { CreateInitiativeSheet } from './create-initiative-sheet';
 import type { InitiativeFormData } from './create-initiative-sheet';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '../ui/badge';
 
 interface InitiativeItemProps {
     item: BudgetItem;
@@ -71,6 +72,7 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                                 <div className="flex items-center gap-2">
                                     <p className="font-semibold">{item.shortName}</p>
                                     <Tag className="h-4 w-4 text-muted-foreground" />
+                                    {item.isStandard && <Badge className="bg-blue-100 text-blue-800">SI</Badge>}
                                 </div>
                                 <p className="text-sm text-muted-foreground">{departmentMap[item.department] || item.department}</p>
                             </div>

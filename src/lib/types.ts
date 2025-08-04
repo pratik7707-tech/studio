@@ -9,6 +9,7 @@ export interface BudgetItem {
   rationale: string;
   risk: string;
   amount: number;
+  isStandard?: boolean;
 }
 
 export interface NarrativeData {
