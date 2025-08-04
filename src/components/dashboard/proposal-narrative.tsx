@@ -119,7 +119,7 @@ export function ProposalNarrative() {
   const handleDeleteAll = async () => {
     const result = await deleteNarrative();
     if (result.success) {
-      setNarrativeData({ id: 'narrative_1', context: '', challenge: '', opportunity: '' });
+      setNarrativeData({ id: 'narrative_1', Context: '', Challenges: '', Opportunities: '' });
       toast({ title: 'Success!', description: 'All narrative items have been deleted.' });
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
@@ -127,15 +127,15 @@ export function ProposalNarrative() {
   };
 
   const handleSave = async (data: {
-    context?: string;
-    challenge?: string;
-    opportunity?: string;
+    Context?: string;
+    Challenges?: string;
+    Opportunities?: string;
   }) => {
     setIsSaving(true);
     const saveData = {
-        context: data.context || "",
-        challenge: data.challenge || "",
-        opportunity: data.opportunity || ""
+        Context: data.Context || "",
+        Challenges: data.Challenges || "",
+        Opportunities: data.Opportunities || ""
     };
 
     try {
@@ -174,7 +174,7 @@ export function ProposalNarrative() {
     );
   }
   
-  const noData = !narrativeData || (!narrativeData.context && !narrativeData.challenge && !narrativeData.opportunity);
+  const noData = !narrativeData || (!narrativeData.Context && !narrativeData.Challenges && !narrativeData.Opportunities);
 
   if (noData) {
     return (
@@ -258,17 +258,17 @@ export function ProposalNarrative() {
       <CardContent className="p-0">
         <NarrativeSection
           title="Context"
-          text={narrativeData?.context || ''}
+          text={narrativeData?.Context || ''}
           placeholder="No context identified."
         />
         <NarrativeSection
           title="Challenges"
-          text={narrativeData?.challenge || ''}
+          text={narrativeData?.Challenges || ''}
           placeholder="No challenges identified."
         />
         <NarrativeSection
           title="Opportunities"
-          text={narrativeData?.opportunity || ''}
+          text={narrativeData?.Opportunities || ''}
           placeholder="No opportunities identified."
         />
       </CardContent>

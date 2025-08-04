@@ -7,8 +7,8 @@ export interface BudgetItem {
 
 export interface NarrativeData {
   id: string;
-  context: string;
-  challenge: string;
-  opportunity: string;
+  Context: string;
+  Challenges: string;
+  Opportunities: string;
   updatedAt?: string;
 }

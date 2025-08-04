@@ -8,9 +8,9 @@ import mammoth from 'mammoth';
 const NARRATIVE_DOC_ID = "narrative_1";
 
 export async function saveNarrative(data: {
-  context: string;
-  challenge: string;
-  opportunity: string;
+  Context: string;
+  Challenges: string;
+  Opportunities: string;
 }) {
   try {
     const docRef = doc(db, 'narratives', NARRATIVE_DOC_ID);
@@ -69,7 +69,7 @@ export async function getNarrative() {
       return { success: true, data: serializeNarrativeData(docSnap.data()) };
     } else {
       // Return a default structure if the document doesn't exist
-      return { success: true, data: { id: NARRATIVE_DOC_ID, context: '', challenge: '', opportunity: '' } };
+      return { success: true, data: { id: NARRATIVE_DOC_ID, Context: '', Challenges: '', Opportunities: '' } };
     }
   } catch (error) {
     console.error("Error getting document: ", error);
@@ -83,9 +83,9 @@ export async function uploadNarrativeFromDocx(fileBase64: string) {
         const { value: text } = await mammoth.extractRawText({ buffer: fileBuffer });
         
         const sections: { [key: string]: string[] } = {
-            context: [],
-            challenge: [],
-            opportunity: [],
+            Context: [],
+            Challenges: [],
+            Opportunities: [],
         };
 
         const lines = text.split('\n');
@@ -99,18 +99,17 @@ export async function uploadNarrativeFromDocx(fileBase64: string) {
             
             let headingFound: keyof typeof sections | null = null;
             let contentAfterHeading = '';
+            
+            const headings: (keyof typeof sections)[] = ['Context', 'Challenges', 'Opportunities'];
 
-            if (lowercasedLine.startsWith('context')) {
-                headingFound = 'context';
-                contentAfterHeading = trimmedLine.substring('context'.length).trim();
-            } else if (lowercasedLine.startsWith('challenge')) {
-                headingFound = 'challenge';
-                contentAfterHeading = trimmedLine.substring('challenge'.length).trim();
-            } else if (lowercasedLine.startsWith('opportunity')) {
-                headingFound = 'opportunity';
-                contentAfterHeading = trimmedLine.substring('opportunity'.length).trim();
+            for (const heading of headings) {
+                if (lowercasedLine.startsWith(heading.toLowerCase())) {
+                    headingFound = heading;
+                    contentAfterHeading = trimmedLine.substring(heading.length).trim();
+                    break;
+                }
             }
-
+            
             if (headingFound) {
                 currentSection = headingFound;
                 if (contentAfterHeading.startsWith(':')) {
@@ -125,9 +124,9 @@ export async function uploadNarrativeFromDocx(fileBase64: string) {
         }
 
         const narrativeData = {
-            context: sections.context.join('\n').trim(),
-            challenge: sections.challenge.join('\n').trim(),
-            opportunity: sections.opportunity.join('\n').trim(),
+            Context: sections.Context.join('\n').trim(),
+            Challenges: sections.Challenges.join('\n').trim(),
+            Opportunities: sections.Opportunities.join('\n').trim(),
         };
 
         return await saveNarrative(narrativeData);

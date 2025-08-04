@@ -18,9 +18,9 @@ import { Loader2 } from 'lucide-react';
 import type { NarrativeData } from '@/lib/types';
 
 const formSchema = z.object({
-  context: z.string().optional(),
-  challenge: z.string().optional(),
-  opportunity: z.string().optional(),
+  Context: z.string().optional(),
+  Challenges: z.string().optional(),
+  Opportunities: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -40,17 +40,17 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     reset,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { context: '', challenge: '', opportunity: '' },
+    defaultValues: { Context: '', Challenges: '', Opportunities: '' },
   });
 
-  const isEditing = !!initialData && (!!initialData.context || !!initialData.challenge || !!initialData.opportunity);
+  const isEditing = !!initialData && (!!initialData.Context || !!initialData.Challenges || !!initialData.Opportunities);
 
   useEffect(() => {
     if (isOpen) {
         reset({
-          context: initialData?.context || '',
-          challenge: initialData?.challenge || '',
-          opportunity: initialData?.opportunity || '',
+          Context: initialData?.Context || '',
+          Challenges: initialData?.Challenges || '',
+          Opportunities: initialData?.Opportunities || '',
         });
     }
   }, [isOpen, initialData, reset]);
@@ -70,7 +70,7 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
               <div className="space-y-2">
                 <Label htmlFor="context">Context</Label>
                 <Controller
-                  name="context"
+                  name="Context"
                   control={control}
                   render={({ field }) => <Textarea {...field} placeholder="Enter context" />}
                 />
@@ -78,7 +78,7 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
               <div className="space-y-2">
                 <Label htmlFor="challenge">Challenge</Label>
                 <Controller
-                  name="challenge"
+                  name="Challenges"
                   control={control}
                   render={({ field }) => <Textarea {...field} placeholder="Enter challenge" />}
                 />
@@ -86,7 +86,7 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
               <div className="space-y-2">
                 <Label htmlFor="opportunity">Opportunity</Label>
                 <Controller
-                  name="opportunity"
+                  name="Opportunities"
                   control={control}
                   render={({ field }) => <Textarea {...field} placeholder="Enter opportunity" />}
                 />
