@@ -8,6 +8,7 @@ import { FileText, Users } from "lucide-react";
 import { ProposalNarrative } from "./proposal-narrative";
 import type { InitiativeFormData } from "./create-initiative-sheet";
 import type { StandardInitiativeFormData } from "./select-standard-initiative-sheet";
+import { PositionBudgetTable } from "./position-budget-table";
 
 
 interface BudgetDetailsProps {
@@ -86,15 +87,8 @@ export function BudgetDetails({
         />
       </TabsContent>
       <TabsContent value="position" className="mt-4">
-        <BudgetTable
-          type="position"
-          title="Position Budget"
+        <PositionBudgetTable
           data={positionBudget}
-          onAddItem={onAddItem}
-          onAddStandardItem={onAddStandardItem}
-          onRemoveItem={onRemoveItem}
-          onUpdateItem={onUpdateItem}
-          onSaveItem={onSaveItem}
           isLoading={isLoading}
         />
       </TabsContent>

@@ -10,6 +10,15 @@ export interface BudgetItem {
   risk: string;
   amount: number;
   isStandard?: boolean;
+
+  // Position-specific fields
+  positionId?: string;
+  grade?: string;
+  location?: string;
+  positionTitle?: string;
+  justification?: string;
+  variance?: number;
+  effectiveDate?: string;
 }
 
 export interface NarrativeData {
