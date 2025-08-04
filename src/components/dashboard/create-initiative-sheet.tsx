@@ -55,7 +55,7 @@ interface CreateInitiativeSheetProps {
 
 const ViewOnlyField = ({ label, value }: { label: string, value: React.ReactNode }) => (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <Label className="font-semibold">{label}</Label>
       <p className="text-sm p-2 bg-gray-100 rounded-md min-h-[36px]">{value}</p>
     </div>
 );
@@ -131,7 +131,7 @@ export function CreateInitiativeSheet({
             <form onSubmit={handleSubmit(onSave)} className="flex-grow overflow-y-auto pr-6 pl-1 space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="shortName">Enter Short Name*</Label>
+                <Label htmlFor="shortName" className="font-semibold">Enter Short Name*</Label>
                 <Controller
                     name="shortName"
                     control={control}
@@ -147,7 +147,7 @@ export function CreateInitiativeSheet({
                 />
                 </div>
                 <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="longName">Enter Long Name*</Label>
+                <Label htmlFor="longName" className="font-semibold">Enter Long Name*</Label>
                 <Controller
                     name="longName"
                     control={control}
@@ -163,7 +163,7 @@ export function CreateInitiativeSheet({
                 />
                 </div>
                 <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="department">Select Department*</Label>
+                <Label htmlFor="department" className="font-semibold">Select Department*</Label>
                 <Controller
                     name="department"
                     control={control}
@@ -185,7 +185,7 @@ export function CreateInitiativeSheet({
                 </div>
             </div>
             <div className="space-y-2">
-                <Label>Initiative Priority*</Label>
+                <Label className="font-semibold">Initiative Priority*</Label>
                 <Controller
                 name="priority"
                 control={control}
@@ -209,7 +209,7 @@ export function CreateInitiativeSheet({
                 {errors.priority && <p className="text-xs text-destructive">{errors.priority.message}</p>}
             </div>
             <div className="space-y-2">
-                <Label htmlFor="rationale">Enter Initiative Rationale*</Label>
+                <Label htmlFor="rationale" className="font-semibold">Enter Initiative Rationale*</Label>
                 <Controller
                 name="rationale"
                 control={control}
@@ -225,7 +225,7 @@ export function CreateInitiativeSheet({
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="risk">Enter risk of not implementing the initiative*</Label>
+                <Label htmlFor="risk" className="font-semibold">Enter risk of not implementing the initiative*</Label>
                 <Controller
                 name="risk"
                 control={control}
