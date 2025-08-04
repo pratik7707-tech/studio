@@ -35,7 +35,7 @@ const initiativeSchema = z.object({
   risk: z.string().min(1, 'Risk is required').max(500, 'Risk must be 500 characters or less'),
 });
 
-type InitiativeFormData = z.infer<typeof initiativeSchema>;
+export type InitiativeFormData = z.infer<typeof initiativeSchema>;
 
 interface CreateInitiativeSheetProps {
   isOpen: boolean;
@@ -127,6 +127,7 @@ export function CreateInitiativeSheet({ isOpen, setIsOpen, onSave }: CreateIniti
                       <SelectItem value="B0002">B0002-Corp HQ - Management and Admin</SelectItem>
                       <SelectItem value="B0001">B0001-Executive Office</SelectItem>
                       <SelectItem value="B0010">B0010-Ethics Office</SelectItem>
+                      <SelectItem value="B2107">B2107-Supply Chain Management Unit</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

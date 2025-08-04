@@ -1,7 +1,11 @@
 export interface BudgetItem {
   id: string;
-  category: string;
-  item: string;
+  shortName: string;
+  longName: string;
+  department: string;
+  priority: 'Low' | 'Medium' | 'High';
+  rationale: string;
+  risk: string;
   amount: number;
 }
 

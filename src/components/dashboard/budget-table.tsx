@@ -1,10 +1,7 @@
 'use client';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Trash2, TriangleAlert, Filter } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
 import { type Dispatch, type SetStateAction, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +11,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
+import { Plus, TriangleAlert, Filter } from "lucide-react";
 import { CreateInitiativeSheet } from "./create-initiative-sheet";
+import { InitiativeItem } from "./initiative-item";
 
 interface BudgetTableProps {
   title: string;
@@ -23,7 +22,7 @@ interface BudgetTableProps {
 }
 
 export function BudgetTable({ title, data, setData }: BudgetTableProps) {
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleAddItem = (newItem: Omit<BudgetItem, 'id'>) => {
     setData([
@@ -51,127 +50,76 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
 
   return (
     <>
-    <Card className="shadow-none border-none">
-      <CardHeader className="p-0 mb-4">
-        <div className="flex items-center justify-between">
-            <CardTitle className="font-headline text-lg">{title} Initiatives</CardTitle>
-            <div className="flex items-center gap-2">
-                 <Button variant="outline">
-                    <Filter className="mr-2 h-4 w-4" />
-                    All
-                </Button>
-                <Select defaultValue="all">
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="All Departments" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Departments</SelectItem>
-                    </SelectContent>
-                </Select>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setIsSheetOpen(true)}>
-                      New Initiative
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Select Standard Initiatives
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-        </div>
-        <p className="text-sm text-muted-foreground mt-1">Total Amount: {formatCurrency(totalAmount)}</p>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="rounded-md border">
-          <Table>
-            {data.length > 0 && (
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[200px]">Category</TableHead>
-                  <TableHead>Item</TableHead>
-                  <TableHead className="w-[150px] text-right">Amount</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-            )}
-            <TableBody>
-              {data.length > 0 ? (
-                data.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <Input
-                        value={item.category}
-                        onChange={(e) => handleUpdateItem(item.id, 'category', e.target.value)}
-                        className="h-8"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={item.item}
-                        onChange={(e) => handleUpdateItem(item.id, 'item', e.target.value)}
-                        className="h-8"
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Input
-                        type="number"
-                        value={item.amount}
-                        onChange={(e) => handleUpdateItem(item.id, 'amount', Number(e.target.value))}
-                        className="h-8 text-right"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
+      <Card className="shadow-none border-none">
+        <CardHeader className="p-0 mb-4">
+          <div className="flex items-center justify-between">
+              <CardTitle className="font-headline text-lg">{title} Initiatives</CardTitle>
+              <div className="flex items-center gap-2">
+                   <Button variant="outline">
+                      <Filter className="mr-2 h-4 w-4" />
+                      All
+                  </Button>
+                  <Select defaultValue="all">
+                      <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="All Departments" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Departments</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                        <TriangleAlert className="h-5 w-5 text-yellow-500" />
-                        No data available
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-            {data.length > 0 && (
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={2} className="font-bold">Total</TableCell>
-                        <TableCell className="text-right font-bold">{formatCurrency(totalAmount)}</TableCell>
-                        <TableCell></TableCell>
-                    </TableRow>
-                </TableFooter>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setIsSheetOpen(true)}>
+                        New Initiative
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Select Standard Initiatives
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+              </div>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">Total Amount: {formatCurrency(totalAmount)}</p>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-4">
+            {data.length > 0 ? (
+              data.map((item) => (
+                <InitiativeItem 
+                    key={item.id}
+                    item={item}
+                    onUpdate={handleUpdateItem}
+                    onRemove={handleRemoveItem}
+                />
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <TriangleAlert className="h-5 w-5 text-yellow-500" />
+                      No data available
+                  </div>
+              </div>
             )}
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
-    <CreateInitiativeSheet 
-        isOpen={isSheetOpen}
-        setIsOpen={setIsSheetOpen}
-        onSave={(data) => {
-            // This is a temporary mapping. We will need to decide
-            // how the new initiative form data maps to the budget item.
-            handleAddItem({
-                category: data.department,
-                item: data.shortName,
-                amount: 0, // Default amount for now
-            });
-            setIsSheetOpen(false);
-        }}
-    />
+          </div>
+        </CardContent>
+      </Card>
+      <CreateInitiativeSheet 
+          isOpen={isSheetOpen}
+          setIsOpen={setIsSheetOpen}
+          onSave={(formData) => {
+              handleAddItem({
+                  ...formData,
+                  amount: 0, 
+              });
+              setIsSheetOpen(false);
+          }}
+      />
     </>
   );
 }
