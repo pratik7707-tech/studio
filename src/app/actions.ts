@@ -81,32 +81,53 @@ export async function uploadNarrativeFromDocx(fileBase64: string) {
     try {
         const fileBuffer = Buffer.from(fileBase64, 'base64');
         const { value: text } = await mammoth.extractRawText({ buffer: fileBuffer });
-        const sections: { [key: string]: string } = {
-            context: '',
-            challenge: '',
-            opportunity: '',
+        
+        const sections: { [key: string]: string[] } = {
+            context: [],
+            challenge: [],
+            opportunity: [],
         };
 
         const lines = text.split('\n');
         let currentSection: keyof typeof sections | null = null;
 
         for (const line of lines) {
-            const trimmedLine = line.trim().toLowerCase();
-            if (trimmedLine.startsWith('context')) {
+            const trimmedLine = line.trim();
+            const lowercasedLine = trimmedLine.toLowerCase();
+
+            if (lowercasedLine.includes('context')) {
                 currentSection = 'context';
-            } else if (trimmedLine.startsWith('challenges')) {
+                const contentAfterHeading = trimmedLine.substring(lowercasedLine.indexOf('context') + 'context'.length).trim();
+                if (contentAfterHeading.startsWith(':')) {
+                    if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
+                } else if(contentAfterHeading.length > 0) {
+                    sections[currentSection].push(contentAfterHeading);
+                }
+            } else if (lowercasedLine.includes('challenge')) {
                 currentSection = 'challenge';
-            } else if (trimmedLine.startsWith('opportunities')) {
+                const contentAfterHeading = trimmedLine.substring(lowercasedLine.indexOf('challenge') + 'challenge'.length).trim();
+                 if (contentAfterHeading.startsWith(':')) {
+                    if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
+                } else if(contentAfterHeading.length > 0) {
+                    sections[currentSection].push(contentAfterHeading);
+                }
+            } else if (lowercasedLine.includes('opportunity')) {
                 currentSection = 'opportunity';
-            } else if (currentSection && line.trim()) {
-                sections[currentSection] += line + '\n';
+                 const contentAfterHeading = trimmedLine.substring(lowercasedLine.indexOf('opportunity') + 'opportunity'.length).trim();
+                if (contentAfterHeading.startsWith(':')) {
+                    if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
+                } else if(contentAfterHeading.length > 0) {
+                    sections[currentSection].push(contentAfterHeading);
+                }
+            } else if (currentSection && trimmedLine) {
+                sections[currentSection].push(trimmedLine);
             }
         }
 
         const narrativeData = {
-            context: sections.context.trim(),
-            challenge: sections.challenge.trim(),
-            opportunity: sections.opportunity.trim(),
+            context: sections.context.join('\n').trim(),
+            challenge: sections.challenge.join('\n').trim(),
+            opportunity: sections.opportunity.join('\n').trim(),
         };
 
         return await saveNarrative(narrativeData);
