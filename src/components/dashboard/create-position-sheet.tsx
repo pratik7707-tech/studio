@@ -58,7 +58,12 @@ const positionSchema = z.object({
 }, {
     message: 'Percentage must be 100% for each year with funding.',
     path: ['fundingSources'],
-}).refine((data) => data.endDate >= data.startDate, {
+}).refine((data) => {
+    if (data.startDate && data.endDate) {
+        return data.endDate >= data.startDate;
+    }
+    return true;
+}, {
     message: "End date cannot be earlier than start date.",
     path: ["endDate"],
 });
@@ -83,6 +88,7 @@ export function CreatePositionSheet({
     watch,
     formState: { errors },
     reset,
+    trigger,
   } = useForm<PositionFormData>({
     resolver: zodResolver(positionSchema),
     defaultValues: {
@@ -95,10 +101,29 @@ export function CreatePositionSheet({
       fundingSources: [],
     },
   });
+
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
+
+  useEffect(() => {
+    if (startDate && endDate) {
+        trigger('endDate');
+    }
+  }, [startDate, endDate, trigger]);
   
   useEffect(() => {
     if (isOpen) {
-        reset();
+        reset({
+            department: '',
+            location: '',
+            grade: '',
+            positionNumber: '',
+            positionTitle: '',
+            justification: '',
+            fundingSources: [],
+            startDate: undefined,
+            endDate: undefined,
+        });
     }
   }, [isOpen, reset]);
 
