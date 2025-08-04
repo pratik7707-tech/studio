@@ -1,17 +1,18 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Plus, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Plus, MoreVertical, Edit, Trash2, Upload } from 'lucide-react';
 import type { NarrativeData } from '@/lib/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ContextForm } from './context-form';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { saveNarrative, deleteNarrative, getNarrative } from '@/app/actions';
+import { saveNarrative, deleteNarrative, getNarrative, uploadNarrativeFromDocx } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -22,7 +23,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '../ui/skeleton';
 
@@ -49,6 +49,7 @@ export function ProposalNarrative() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -67,6 +68,42 @@ export function ProposalNarrative() {
   const handleEdit = () => {
     setFormOpen(true);
   };
+  
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        toast({ variant: 'destructive', title: 'Invalid File Type', description: 'Please upload a .docx file.' });
+        return;
+      }
+
+      setIsSaving(true);
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const result = await uploadNarrativeFromDocx(buffer);
+        if (result.success && result.data) {
+          setNarrativeData(result.data);
+          toast({ title: 'Success!', description: 'Your narrative has been uploaded and saved.' });
+        } else {
+          toast({ variant: 'destructive', title: 'Error', description: result.error || 'Failed to upload file.' });
+        }
+      } catch (e: any) {
+        toast({ variant: 'destructive', title: 'Error', description: e.message || 'An unexpected error occurred during upload.' });
+      } finally {
+        setIsSaving(false);
+        // Reset file input
+        if(fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    }
+  };
+
 
   const handleDeleteAll = async () => {
     const result = await deleteNarrative();
@@ -133,10 +170,23 @@ export function ProposalNarrative() {
       <>
         <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
           <p className="mb-4 text-muted-foreground">To begin, please create your first Context, Challenges &amp; Opportunities</p>
-          <Button onClick={() => setFormOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Context, Challenges &amp; Opportunities
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setFormOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Manually
+            </Button>
+            <Button variant="outline" onClick={handleUploadClick}>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload DOCX
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept=".docx"
+            />
+          </div>
         </div>
         <ContextForm
           isOpen={isFormOpen}
@@ -166,6 +216,11 @@ export function ProposalNarrative() {
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
+             <DropdownMenuItem onClick={handleUploadClick}>
+              <Upload className="mr-2 h-4 w-4" />
+              <span>Upload .docx</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <button className="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive w-full">
@@ -212,6 +267,13 @@ export function ProposalNarrative() {
         onSave={handleSave}
         isSaving={isSaving}
         initialData={narrativeData || undefined}
+      />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept=".docx"
       />
     </Card>
   );

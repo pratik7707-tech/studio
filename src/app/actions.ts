@@ -3,6 +3,7 @@
 import type { BudgetItem, NarrativeData } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import mammoth from 'mammoth';
 
 const NARRATIVE_DOC_ID = "narrative_1";
 
@@ -74,4 +75,43 @@ export async function getNarrative() {
     console.error("Error getting document: ", error);
     return { success: false, error: "Failed to fetch data from Firestore." };
   }
+}
+
+export async function uploadNarrativeFromDocx(fileBuffer: Buffer) {
+    try {
+        const { value: text } = await mammoth.extractRawText({ buffer: fileBuffer });
+        const sections: { [key: string]: string } = {
+            context: '',
+            challenge: '',
+            opportunity: '',
+        };
+
+        const lines = text.split('\n');
+        let currentSection: keyof typeof sections | null = null;
+
+        for (const line of lines) {
+            const trimmedLine = line.trim().toLowerCase();
+            if (trimmedLine.startsWith('context')) {
+                currentSection = 'context';
+            } else if (trimmedLine.startsWith('challenges')) {
+                currentSection = 'challenge';
+            } else if (trimmedLine.startsWith('opportunities')) {
+                currentSection = 'opportunity';
+            } else if (currentSection && line.trim()) {
+                sections[currentSection] += line + '\n';
+            }
+        }
+
+        const narrativeData = {
+            context: sections.context.trim(),
+            challenge: sections.challenge.trim(),
+            opportunity: sections.opportunity.trim(),
+        };
+
+        return await saveNarrative(narrativeData);
+
+    } catch (error) {
+        console.error('Error processing DOCX file:', error);
+        return { success: false, error: 'Failed to process DOCX file.' };
+    }
 }
