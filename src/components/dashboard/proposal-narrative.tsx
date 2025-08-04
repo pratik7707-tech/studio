@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { Plus, MoreVertical, Edit, Trash2, Upload } from 'lucide-react';
@@ -12,7 +13,6 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { saveNarrative, deleteNarrative, getNarrative, uploadNarrativeFromDocx } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -55,13 +55,19 @@ export function ProposalNarrative() {
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
-      const result = await getNarrative();
-      if (result.success && result.data) {
-        setNarrativeData(result.data);
-      } else if (!result.success) {
-        toast({ variant: 'destructive', title: 'Error loading data', description: result.error });
+      try {
+        const response = await fetch('/api/narrative');
+        const result = await response.json();
+        if (result.success && result.data) {
+          setNarrativeData(result.data);
+        } else {
+          toast({ variant: 'destructive', title: 'Error loading data', description: result.error });
+        }
+      } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to connect to the server.'});
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     loadData();
   }, [toast]);
@@ -74,16 +80,6 @@ export function ProposalNarrative() {
     fileInputRef.current?.click();
   };
 
-  const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
-  };
-
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -94,9 +90,16 @@ export function ProposalNarrative() {
 
       setIsSaving(true);
       try {
-        const arrayBuffer = await file.arrayBuffer();
-        const base64String = arrayBufferToBase64(arrayBuffer);
-        const result = await uploadNarrativeFromDocx(base64String);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/narrative', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+
         if (result.success && result.data) {
           setNarrativeData(result.data);
           toast({ title: 'Success!', description: 'Your narrative has been uploaded and saved.' });
@@ -107,7 +110,6 @@ export function ProposalNarrative() {
         toast({ variant: 'destructive', title: 'Error', description: e.message || 'An unexpected error occurred during upload.' });
       } finally {
         setIsSaving(false);
-        // Reset file input
         if(fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -117,12 +119,17 @@ export function ProposalNarrative() {
 
 
   const handleDeleteAll = async () => {
-    const result = await deleteNarrative();
-    if (result.success) {
-      setNarrativeData({ id: 'narrative_1', Context: '', Challenges: '', Opportunities: '' });
-      toast({ title: 'Success!', description: 'All narrative items have been deleted.' });
-    } else {
-      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    try {
+        const response = await fetch('/api/narrative', { method: 'DELETE' });
+        const result = await response.json();
+        if (result.success) {
+            setNarrativeData({ id: 'narrative_1', Context: '', Challenges: '', Opportunities: '' });
+            toast({ title: 'Success!', description: 'All narrative items have been deleted.' });
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
+    } catch (error) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to connect to the server.' });
     }
   };
 
@@ -132,14 +139,15 @@ export function ProposalNarrative() {
     Opportunities?: string;
   }) => {
     setIsSaving(true);
-    const saveData = {
-        Context: data.Context || "",
-        Challenges: data.Challenges || "",
-        Opportunities: data.Opportunities || ""
-    };
-
+    
     try {
-      const result = await saveNarrative(saveData);
+      const response = await fetch('/api/narrative', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+
       if (result.success && result.data) {
         setNarrativeData(result.data);
         toast({ title: 'Success!', description: 'Your narrative has been saved.' });
