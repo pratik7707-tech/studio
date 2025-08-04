@@ -9,6 +9,7 @@ import { BudgetDetails } from './budget-details';
 import { Wallet, Coins, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { InitiativeFormData } from './create-initiative-sheet';
+import type { StandardInitiativeFormData } from './select-standard-initiative-sheet';
 
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>([]);
@@ -91,6 +92,39 @@ export function BudgetPageClient() {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to save initiative.' });
     }
   };
+
+  const handleStandardInitiativeSave = async (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => {
+    const budgetItem: Omit<BudgetItem, 'id'> = {
+      ...newItem,
+      shortName: newItem.standardInitiative,
+      longName: newItem.standardInitiative,
+      type,
+      amount: 0,
+    };
+
+    try {
+      const response = await fetch('/api/budgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(budgetItem),
+      });
+      const result = await response.json();
+      if (result.success) {
+        const fullItem = { ...budgetItem, id: result.data.id };
+        if (type === 'operating') {
+          setOperatingBudget(prev => [...prev, fullItem]);
+        } else {
+          setPositionBudget(prev => [...prev, fullItem]);
+        }
+        toast({ title: "Success!", description: "Standard initiative added successfully." });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+      }
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to save initiative.' });
+    }
+  };
+
 
   const handleRemoveItem = async (id: string, type: 'operating' | 'position') => {
     try {
@@ -185,6 +219,7 @@ export function BudgetPageClient() {
               operatingBudget={operatingBudget}
               positionBudget={positionBudget}
               onAddItem={handleAddItem}
+              onAddStandardItem={handleStandardInitiativeSave}
               onRemoveItem={handleRemoveItem}
               onUpdateItem={handleUpdateItem}
               onSaveItem={handleSaveItem}

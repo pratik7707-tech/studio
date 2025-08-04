@@ -15,12 +15,14 @@ import {
 import { Plus, TriangleAlert, Filter, Loader2 } from "lucide-react";
 import { CreateInitiativeSheet, InitiativeFormData } from "./create-initiative-sheet";
 import { InitiativeItem } from "./initiative-item";
+import { StandardInitiativeFormData, SelectStandardInitiativeSheet } from "./select-standard-initiative-sheet";
 
 interface BudgetTableProps {
   type: 'operating' | 'position';
   title: string;
   data: BudgetItem[];
   onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
+  onAddStandardItem: (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => void;
   onRemoveItem: (id: string, type: 'operating' | 'position') => void;
   onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
   onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
@@ -32,18 +34,25 @@ export function BudgetTable({
   title, 
   data, 
   onAddItem,
+  onAddStandardItem,
   onRemoveItem,
   onUpdateItem,
   onSaveItem,
   isLoading,
 }: BudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isStandardSheetOpen, setIsStandardSheetOpen] = useState(false);
 
   const handleCreateNew = (formData: InitiativeFormData) => {
     onAddItem(formData, type);
     setIsSheetOpen(false);
   };
   
+  const handleSelectStandard = (formData: StandardInitiativeFormData) => {
+    onAddStandardItem(formData, type);
+    setIsStandardSheetOpen(false);
+  };
+
   const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
 
   const formatCurrency = (amount: number) => {
@@ -83,7 +92,7 @@ export function BudgetTable({
                       <DropdownMenuItem onClick={() => setIsSheetOpen(true)}>
                         New Initiative
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setIsStandardSheetOpen(true)}>
                         Select Standard Initiatives
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -124,6 +133,11 @@ export function BudgetTable({
           isOpen={isSheetOpen}
           setIsOpen={setIsSheetOpen}
           onSave={handleCreateNew}
+      />
+       <SelectStandardInitiativeSheet
+        isOpen={isStandardSheetOpen}
+        setIsOpen={setIsStandardSheetOpen}
+        onSave={handleSelectStandard}
       />
     </>
   );

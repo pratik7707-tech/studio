@@ -7,12 +7,14 @@ import type { BudgetItem } from '@/lib/types';
 import { FileText, Users } from "lucide-react";
 import { ProposalNarrative } from "./proposal-narrative";
 import type { InitiativeFormData } from "./create-initiative-sheet";
+import type { StandardInitiativeFormData } from "./select-standard-initiative-sheet";
 
 
 interface BudgetDetailsProps {
   operatingBudget: BudgetItem[];
   positionBudget: BudgetItem[];
   onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
+  onAddStandardItem: (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => void;
   onRemoveItem: (id: string, type: 'operating' | 'position') => void;
   onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
   onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
@@ -48,6 +50,7 @@ export function BudgetDetails({
   operatingBudget,
   positionBudget,
   onAddItem,
+  onAddStandardItem,
   onRemoveItem,
   onUpdateItem,
   onSaveItem,
@@ -75,6 +78,7 @@ export function BudgetDetails({
           title="Operating Budget" 
           data={operatingBudget}
           onAddItem={onAddItem}
+          onAddStandardItem={onAddStandardItem}
           onRemoveItem={onRemoveItem}
           onUpdateItem={onUpdateItem}
           onSaveItem={onSaveItem}
@@ -87,6 +91,7 @@ export function BudgetDetails({
           title="Position Budget"
           data={positionBudget}
           onAddItem={onAddItem}
+          onAddStandardItem={onAddStandardItem}
           onRemoveItem={onRemoveItem}
           onUpdateItem={onUpdateItem}
           onSaveItem={onSaveItem}
