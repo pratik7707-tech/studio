@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 
 type NavItem = 'RRP Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
@@ -33,15 +34,15 @@ export function Header() {
   ];
 
   const adminMenuItems = [
-    'Manage IP',
-    'OFA Migration Dashboard',
-    'OFA Summary Dashboard',
-    'RRP Monitoring',
-    'Mandatory Tasks',
-    'Manage Strategic Plan',
-    'Manage Standard Initiative',
-    'Manage Budget Envelope',
-    'Manage Programme Output'
+    { label: 'Manage IP', href: '#' },
+    { label: 'OFA Migration Dashboard', href: '#' },
+    { label: 'OFA Summary Dashboard', href: '#' },
+    { label: 'RRP Monitoring', href: '#' },
+    { label: 'Mandatory Tasks', href: '#' },
+    { label: 'Manage Strategic Plan', href: '#' },
+    { label: 'Manage Standard Initiative', href: '/manage-standard-initiatives' },
+    { label: 'Manage Budget Envelope', href: '#' },
+    { label: 'Manage Programme Output', href: '#' }
   ];
 
   return (
@@ -73,7 +74,9 @@ export function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                       {adminMenuItems.map((adminItem) => (
-                        <DropdownMenuItem key={adminItem}>{adminItem}</DropdownMenuItem>
+                        <DropdownMenuItem key={adminItem.label} asChild>
+                          <Link href={adminItem.href}>{adminItem.label}</Link>
+                        </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>

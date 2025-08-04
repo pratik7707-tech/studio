@@ -1,4 +1,5 @@
 
+
 export interface BudgetItem {
   id: string;
   type: 'operating' | 'position';
@@ -34,4 +35,13 @@ export interface NarrativeData {
   Challenges: string;
   Opportunities: string;
   updatedAt?: string;
+}
+
+export interface StandardInitiative {
+    id: string;
+    shortName: string;
+    longName: string;
+    department: string;
+    rationale: string;
+    risk: string;
 }
