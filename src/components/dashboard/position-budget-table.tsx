@@ -131,7 +131,7 @@ export function PositionBudgetTable({ data, isLoading, onSavePosition }: Positio
                       <TableCell>{item.variance ? formatCurrency(item.variance) : ''}</TableCell>
                       <TableCell>{item.effectiveDate}</TableCell>
                       <TableCell>
-                        {item.variance && <Badge variant="secondary" className="bg-gray-200 text-gray-800">NEW</Badge>}
+                        {item.variance && <Badge variant="secondary" className="bg-blue-100 text-blue-800">NEW</Badge>}
                       </TableCell>
                       <TableCell>
                         {item.variance && <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>}
