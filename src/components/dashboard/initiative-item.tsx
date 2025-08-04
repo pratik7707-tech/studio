@@ -1,16 +1,10 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   DropdownMenu,
@@ -25,12 +19,13 @@ import type { BudgetItem } from '@/lib/types';
 import { useState } from 'react';
 import { CreateInitiativeSheet } from './create-initiative-sheet';
 import type { InitiativeFormData } from './create-initiative-sheet';
+import { useToast } from '@/hooks/use-toast';
 
 interface InitiativeItemProps {
     item: BudgetItem;
     onUpdate: (id: string, field: keyof BudgetItem, value: string | number) => void;
     onRemove: (id: string) => void;
-    onSave: (id: string, field: keyof BudgetItem, value: string | number) => void;
+    onSave: (id: string, formData: InitiativeFormData) => void;
 }
 
 const departmentMap: { [key: string]: string } = {
@@ -43,19 +38,17 @@ const departmentMap: { [key: string]: string } = {
 export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeItemProps) {
     const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
     const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(amount);
-      };
+    const { toast } = useToast();
 
     const handleSaveFromSheet = (formData: InitiativeFormData) => {
-        Object.keys(formData).forEach(key => {
-            onSave(item.id, key as keyof BudgetItem, formData[key as keyof InitiativeFormData]);
-        });
+        onSave(item.id, formData);
         setIsEditSheetOpen(false);
+    }
+    
+    // This function will be called on blur for text inputs
+    const handleFieldSave = (field: keyof BudgetItem, value: string | number) => {
+        onUpdate(item.id, field, value);
+        toast({ title: "Auto-saved!", description: `Updated ${String(field)}.` });
     }
 
     return (
@@ -109,18 +102,25 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Long Name</Label>
-                                <Input value={item.longName} onChange={(e) => onUpdate(item.id, 'longName', e.target.value)} />
+                                <Input 
+                                    defaultValue={item.longName}
+                                    onBlur={(e) => handleFieldSave('longName', e.target.value)} 
+                                />
                             </div>
                             <div className="space-y-2">
                                 <Label>Amount</Label>
-                                <Input type="number" value={item.amount} onChange={(e) => onUpdate(item.id, 'amount', Number(e.target.value))} />
+                                <Input 
+                                    type="number"
+                                    defaultValue={item.amount}
+                                    onBlur={(e) => handleFieldSave('amount', Number(e.target.value))}
+                                />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label>Initiative Priority</Label>
                             <RadioGroup 
-                                value={item.priority} 
-                                onValueChange={(value) => onUpdate(item.id, 'priority', value)}
+                                defaultValue={item.priority} 
+                                onValueChange={(value) => handleFieldSave('priority', value)}
                                 className="flex gap-4"
                             >
                                 <div className="flex items-center space-x-2">
@@ -139,11 +139,17 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                         </div>
                         <div className="space-y-2">
                             <Label>Rationale</Label>
-                            <Textarea value={item.rationale} onChange={(e) => onUpdate(item.id, 'rationale', e.target.value)} />
+                            <Textarea 
+                                defaultValue={item.rationale} 
+                                onBlur={(e) => handleFieldSave('rationale', e.target.value)} 
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>Risk</Label>
-                            <Textarea value={item.risk} onChange={(e) => onUpdate(item.id, 'risk', e.target.value)} />
+                            <Textarea
+                                defaultValue={item.risk}
+                                onBlur={(e) => handleFieldSave('risk', e.target.value)}
+                             />
                         </div>
                     </div>
                 </CollapsibleContent>

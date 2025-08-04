@@ -1,5 +1,7 @@
+
 export interface BudgetItem {
   id: string;
+  type: 'operating' | 'position';
   shortName: string;
   longName: string;
   department: string;

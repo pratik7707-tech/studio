@@ -1,9 +1,10 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { BudgetItem } from "@/lib/types";
-import { type Dispatch, type SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     DropdownMenu,
@@ -11,32 +12,36 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
-import { Plus, TriangleAlert, Filter } from "lucide-react";
-import { CreateInitiativeSheet } from "./create-initiative-sheet";
+import { Plus, TriangleAlert, Filter, Loader2 } from "lucide-react";
+import { CreateInitiativeSheet, InitiativeFormData } from "./create-initiative-sheet";
 import { InitiativeItem } from "./initiative-item";
 
 interface BudgetTableProps {
+  type: 'operating' | 'position';
   title: string;
   data: BudgetItem[];
-  setData: Dispatch<SetStateAction<BudgetItem[]>>;
+  onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
+  onRemoveItem: (id: string, type: 'operating' | 'position') => void;
+  onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
+  onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
+  isLoading: boolean;
 }
 
-export function BudgetTable({ title, data, setData }: BudgetTableProps) {
+export function BudgetTable({ 
+  type,
+  title, 
+  data, 
+  onAddItem,
+  onRemoveItem,
+  onUpdateItem,
+  onSaveItem,
+  isLoading,
+}: BudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const handleAddItem = (newItem: Omit<BudgetItem, 'id'>) => {
-    setData((prevData) => [
-      ...prevData,
-      { ...newItem, id: `new-${Date.now()}` },
-    ]);
-  };
-
-  const handleRemoveItem = (id: string) => {
-    setData(data.filter(item => item.id !== id));
-  };
-
-  const handleUpdateItem = (id: string, field: keyof BudgetItem, value: string | number) => {
-    setData(data.map(item => item.id === id ? { ...item, [field]: value } : item));
+  const handleCreateNew = (formData: InitiativeFormData) => {
+    onAddItem(formData, type);
+    setIsSheetOpen(false);
   };
   
   const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
@@ -89,14 +94,19 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
         </CardHeader>
         <CardContent className="p-0">
           <div className="space-y-4">
-            {data.length > 0 ? (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
+                <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                <p className="text-muted-foreground mt-2">Loading Initiatives...</p>
+              </div>
+            ) : data.length > 0 ? (
               data.map((item) => (
                 <InitiativeItem 
                     key={item.id}
                     item={item}
-                    onUpdate={handleUpdateItem}
-                    onRemove={handleRemoveItem}
-                    onSave={handleUpdateItem}
+                    onUpdate={(id, field, value) => onUpdateItem(id, field, value, type)}
+                    onRemove={(id) => onRemoveItem(id, type)}
+                    onSave={(id, formData) => onSaveItem(id, formData, type)}
                 />
               ))
             ) : (
@@ -113,13 +123,7 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
       <CreateInitiativeSheet 
           isOpen={isSheetOpen}
           setIsOpen={setIsSheetOpen}
-          onSave={(formData) => {
-              handleAddItem({
-                  ...formData,
-                  amount: 0, 
-              });
-              setIsSheetOpen(false);
-          }}
+          onSave={handleCreateNew}
       />
     </>
   );

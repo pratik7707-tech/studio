@@ -1,18 +1,22 @@
+
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BudgetTable } from './budget-table';
 import type { BudgetItem } from '@/lib/types';
-import type { Dispatch, SetStateAction } from 'react';
 import { FileText, Users } from "lucide-react";
 import { ProposalNarrative } from "./proposal-narrative";
+import type { InitiativeFormData } from "./create-initiative-sheet";
 
 
 interface BudgetDetailsProps {
   operatingBudget: BudgetItem[];
-  setOperatingBudget: Dispatch<SetStateAction<BudgetItem[]>>;
   positionBudget: BudgetItem[];
-  setPositionBudget: Dispatch<SetStateAction<BudgetItem[]>>;
+  onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
+  onRemoveItem: (id: string, type: 'operating' | 'position') => void;
+  onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
+  onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
+  isLoading: boolean;
 }
 
 const OperatingBudgetIcon = () => (
@@ -41,8 +45,13 @@ const OperatingBudgetIcon = () => (
   );
 
 export function BudgetDetails({ 
-  operatingBudget, setOperatingBudget, 
-  positionBudget, setPositionBudget,
+  operatingBudget,
+  positionBudget,
+  onAddItem,
+  onRemoveItem,
+  onUpdateItem,
+  onSaveItem,
+  isLoading,
 }: BudgetDetailsProps) {
   return (
     <Tabs defaultValue="narrative" className="bg-white rounded-lg border p-4">
@@ -61,10 +70,28 @@ export function BudgetDetails({
         <ProposalNarrative />
       </TabsContent>
       <TabsContent value="operating" className="mt-4">
-        <BudgetTable title="Operating Budget" data={operatingBudget} setData={setOperatingBudget} />
+        <BudgetTable 
+          type="operating"
+          title="Operating Budget" 
+          data={operatingBudget}
+          onAddItem={onAddItem}
+          onRemoveItem={onRemoveItem}
+          onUpdateItem={onUpdateItem}
+          onSaveItem={onSaveItem}
+          isLoading={isLoading}
+        />
       </TabsContent>
       <TabsContent value="position" className="mt-4">
-        <BudgetTable title="Position Budget" data={positionBudget} setData={setPositionBudget} />
+        <BudgetTable
+          type="position"
+          title="Position Budget"
+          data={positionBudget}
+          onAddItem={onAddItem}
+          onRemoveItem={onRemoveItem}
+          onUpdateItem={onUpdateItem}
+          onSaveItem={onSaveItem}
+          isLoading={isLoading}
+        />
       </TabsContent>
     </Tabs>
   );
