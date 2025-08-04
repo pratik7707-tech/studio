@@ -8,6 +8,12 @@ import { Plus, Trash2, TriangleAlert, Filter } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
 import type { Dispatch, SetStateAction } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu";
 
 interface BudgetTableProps {
   title: string;
@@ -58,10 +64,22 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
                         <SelectItem value="all">All Departments</SelectItem>
                     </SelectContent>
                 </Select>
-                <Button onClick={handleAddItem}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleAddItem}>
+                      New Initiative
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      Select Standard Initiatives
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1">Total Amount: {formatCurrency(totalAmount)}</p>
