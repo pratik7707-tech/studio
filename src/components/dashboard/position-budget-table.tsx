@@ -40,48 +40,6 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const exampleData = [
-  {
-      id: '1',
-      department: 'SAVINGS',
-      positionId: '',
-      grade: '',
-      location: '',
-      positionTitle: '',
-      justification: '',
-      amount: 0.00,
-      variance: undefined,
-      effectiveDate: 'Jan 2026',
-      type: 'position' as 'position',
-      shortName: '',
-      longName: '',
-      priority: 'Medium' as 'Medium',
-      rationale: '',
-      risk: '',
-      isStandard: false,
-  },
-  {
-      id: '2',
-      department: 'B2107',
-      positionId: '010',
-      grade: 'USG',
-      location: 'Albania',
-      positionTitle: 'test',
-      justification: 'test just',
-      amount: 428997.00,
-      variance: 428997.00,
-      effectiveDate: 'May 2026',
-      type: 'position' as 'position',
-      shortName: 'test',
-      longName: 'test',
-      priority: 'Medium' as 'Medium',
-      rationale: '',
-      risk: '',
-      isStandard: false,
-  },
-];
-
-
 export function PositionBudgetTable({ data, isLoading, onSavePosition }: PositionBudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
@@ -145,12 +103,13 @@ export function PositionBudgetTable({ data, isLoading, onSavePosition }: Positio
                   <TableHead>Variance</TableHead>
                   <TableHead>Effective Date</TableHead>
                   <TableHead>Changes</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center">
+                    <TableCell colSpan={11} className="text-center">
                       <Loader2 className="mx-auto h-8 w-8 animate-spin" />
                     </TableCell>
                   </TableRow>
@@ -161,7 +120,7 @@ export function PositionBudgetTable({ data, isLoading, onSavePosition }: Positio
                         {departmentMap[item.department] || item.department}
                         {(item.variance) && <ArrowUpRight className="h-4 w-4" />}
                       </TableCell>
-                      <TableCell className="flex items-center gap-1">
+                      <TableCell>
                         {item.positionId}
                       </TableCell>
                       <TableCell>{item.grade}</TableCell>
@@ -172,10 +131,10 @@ export function PositionBudgetTable({ data, isLoading, onSavePosition }: Positio
                       <TableCell>{item.variance ? formatCurrency(item.variance) : ''}</TableCell>
                       <TableCell>{item.effectiveDate}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                           {item.variance && <Badge variant="secondary" className="bg-gray-200 text-gray-800">NEW</Badge>}
-                           {item.variance && <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>}
-                        </div>
+                        {item.variance && <Badge variant="secondary" className="bg-gray-200 text-gray-800">NEW</Badge>}
+                      </TableCell>
+                      <TableCell>
+                        {item.variance && <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>}
                       </TableCell>
                     </TableRow>
                   ))
