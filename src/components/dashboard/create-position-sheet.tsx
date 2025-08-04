@@ -58,6 +58,9 @@ const positionSchema = z.object({
 }, {
     message: 'Percentage must be 100% for each year with funding.',
     path: ['fundingSources'],
+}).refine((data) => data.endDate >= data.startDate, {
+    message: "End date cannot be earlier than start date.",
+    path: ["endDate"],
 });
 
 
@@ -296,3 +299,5 @@ export function CreatePositionSheet({
     </Sheet>
   );
 }
+
+    
