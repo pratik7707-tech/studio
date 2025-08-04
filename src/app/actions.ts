@@ -77,8 +77,9 @@ export async function getNarrative() {
   }
 }
 
-export async function uploadNarrativeFromDocx(fileBuffer: Buffer) {
+export async function uploadNarrativeFromDocx(fileBase64: string) {
     try {
+        const fileBuffer = Buffer.from(fileBase64, 'base64');
         const { value: text } = await mammoth.extractRawText({ buffer: fileBuffer });
         const sections: { [key: string]: string } = {
             context: '',

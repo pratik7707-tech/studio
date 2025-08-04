@@ -74,6 +74,16 @@ export function ProposalNarrative() {
     fileInputRef.current?.click();
   };
 
+  const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  };
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -85,8 +95,8 @@ export function ProposalNarrative() {
       setIsSaving(true);
       try {
         const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const result = await uploadNarrativeFromDocx(buffer);
+        const base64String = arrayBufferToBase64(arrayBuffer);
+        const result = await uploadNarrativeFromDocx(base64String);
         if (result.success && result.data) {
           setNarrativeData(result.data);
           toast({ title: 'Success!', description: 'Your narrative has been uploaded and saved.' });
