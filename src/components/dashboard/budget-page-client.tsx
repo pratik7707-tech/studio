@@ -25,7 +25,7 @@ export function BudgetPageClient() {
       try {
         const [opRes, posRes] = await Promise.all([
           fetch('/api/budgets?type=operating'),
-          fetch('/api/budgets?type=position'),
+          fetch('/api/positions'),
         ]);
 
         const opResult = await opRes.json();
@@ -84,8 +84,6 @@ export function BudgetPageClient() {
         const fullItem = { ...budgetItem, id: result.data.id };
         if (type === 'operating') {
           setOperatingBudget(prev => [...prev, fullItem]);
-        } else {
-          setPositionBudget(prev => [...prev, fullItem]);
         }
         toast({ title: "Success!", description: "Initiative added successfully." });
       } else {
@@ -117,8 +115,6 @@ export function BudgetPageClient() {
         const fullItem = { ...budgetItem, id: result.data.id };
         if (type === 'operating') {
           setOperatingBudget(prev => [...prev, fullItem]);
-        } else {
-          setPositionBudget(prev => [...prev, fullItem]);
         }
         toast({ title: "Success!", description: "Standard initiative added successfully." });
       } else {
@@ -153,7 +149,7 @@ export function BudgetPageClient() {
     };
 
     try {
-      const response = await fetch('/api/budgets', {
+      const response = await fetch('/api/positions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(budgetItem),
@@ -173,8 +169,9 @@ export function BudgetPageClient() {
 
 
   const handleRemoveItem = async (id: string, type: 'operating' | 'position') => {
+    const url = type === 'operating' ? `/api/budgets?id=${id}` : `/api/positions?id=${id}`;
     try {
-      const response = await fetch(`/api/budgets?id=${id}`, {
+      const response = await fetch(url, {
         method: 'DELETE',
       });
       const result = await response.json();
@@ -184,19 +181,20 @@ export function BudgetPageClient() {
         } else {
           setPositionBudget(prev => prev.filter(item => item.id !== id));
         }
-        toast({ title: "Success!", description: "Initiative deleted successfully." });
+        toast({ title: "Success!", description: "Item deleted successfully." });
       } else {
         toast({ variant: 'destructive', title: 'Error', description: result.error });
       }
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete initiative.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete item.' });
     }
   };
 
   const handleUpdateItem = async (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => {
      const updatedItem = { id, [field]: value };
+     const url = type === 'operating' ? '/api/budgets' : '/api/positions';
     try {
-        const response = await fetch('/api/budgets', {
+        const response = await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedItem),
@@ -214,14 +212,15 @@ export function BudgetPageClient() {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
         }
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to update initiative.' });
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to update item.' });
     }
   };
 
   const handleSaveItem = async (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => {
     const updatedData = { id, ...formData };
+    const url = type === 'operating' ? '/api/budgets' : '/api/positions';
     try {
-        const response = await fetch('/api/budgets', {
+        const response = await fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedData),
