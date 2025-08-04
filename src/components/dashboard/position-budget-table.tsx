@@ -48,39 +48,6 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
     setIsSheetOpen(false);
   }
 
-  const exampleData: BudgetItem[] = [
-    {
-        id: '1',
-        type: 'position',
-        department: 'Saving from Posts',
-        amount: 0,
-        effectiveDate: 'Jan 2026',
-        shortName: '',
-        longName: '',
-        priority: 'Medium',
-        rationale: '',
-        risk: ''
-    },
-    {
-        id: '2',
-        type: 'position',
-        department: 'B2107',
-        positionId: '010',
-        grade: 'USG',
-        location: 'Albania',
-        positionTitle: 'test',
-        justification: 'test just',
-        amount: 428997.00,
-        variance: 428997.00,
-        effectiveDate: 'May 2026',
-        shortName: '',
-        longName: '',
-        priority: 'Medium',
-        rationale: '',
-        risk: ''
-    }
-  ];
-
   return (
     <div>
       <Tabs defaultValue="proposed">
@@ -146,10 +113,16 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
                     </TableCell>
                   </TableRow>
                 ) : (
-                  exampleData.map(item => (
+                  data.map(item => (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium flex items-center gap-1">{departmentMap[item.department] || item.department} <ArrowUpRight className="h-4 w-4" /></TableCell>
-                      <TableCell className="flex items-center gap-1">{item.positionId} {item.positionId && <ArrowUpRight className="h-4 w-4" />}</TableCell>
+                      <TableCell className="font-medium flex items-center gap-1">
+                        {departmentMap[item.department] || item.department}
+                        {item.department === 'Saving from Posts' && <ArrowUpRight className="h-4 w-4" />}
+                      </TableCell>
+                      <TableCell className="flex items-center gap-1">
+                        {item.positionId}
+                        {item.positionId && <ArrowUpRight className="h-4 w-4" />}
+                      </TableCell>
                       <TableCell>{item.grade}</TableCell>
                       <TableCell>{item.location}</TableCell>
                       <TableCell>{item.positionTitle}</TableCell>
