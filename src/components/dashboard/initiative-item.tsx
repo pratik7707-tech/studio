@@ -77,16 +77,6 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                         </div>
                     </CollapsibleTrigger>
                     <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-2 border-r pr-2 mr-2">
-                            <CircleDollarSign className="h-5 w-5 text-gray-400" />
-                            <Input 
-                                type="number"
-                                className="w-32 h-8 text-right font-semibold"
-                                value={item.amount}
-                                onChange={(e) => onUpdate(item.id, 'amount', Number(e.target.value))}
-                                onBlur={(e) => handleFieldSave('amount', Number(e.target.value))}
-                            />
-                        </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -119,10 +109,26 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                 </div>
                 <CollapsibleContent>
                     <div className="p-4 border-l border-r border-b rounded-b-lg space-y-4 bg-gray-50">
-                        <div className="space-y-2">
-                            <Label>Long Name</Label>
-                            <p className="text-sm text-muted-foreground">{item.longName}</p>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Long Name</Label>
+                                <p className="text-sm text-muted-foreground">{item.longName}</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Amount</Label>
+                                <div className="flex items-center gap-2">
+                                    <CircleDollarSign className="h-5 w-5 text-gray-400" />
+                                    <Input 
+                                        type="number"
+                                        className="w-32 h-8 text-left font-semibold"
+                                        value={item.amount}
+                                        onChange={(e) => onUpdate(item.id, 'amount', Number(e.target.value))}
+                                        onBlur={(e) => handleFieldSave('amount', Number(e.target.value))}
+                                    />
+                                </div>
+                            </div>
                         </div>
+
                         <div className="space-y-2">
                             <Label>Initiative Priority</Label>
                              <p className="text-sm text-muted-foreground">{item.priority}</p>
