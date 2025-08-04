@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, MoreVertical, Tag, Trash2, Edit, Eye } from 'lucide-react';
+import { ChevronDown, MoreVertical, Tag, Trash2, Edit, Eye, CircleDollarSign } from 'lucide-react';
 import type { BudgetItem } from '@/lib/types';
 import { useState } from 'react';
 import { CreateInitiativeSheet } from './create-initiative-sheet';
@@ -35,6 +35,15 @@ const departmentMap: { [key: string]: string } = {
     'B2107': 'B2107-Supply Chain Management Unit',
 };
 
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
+
 export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeItemProps) {
     const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
     const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
@@ -45,10 +54,11 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
         setIsEditSheetOpen(false);
     }
     
-    // This function will be called on blur for text inputs
     const handleFieldSave = (field: keyof BudgetItem, value: string | number) => {
         onUpdate(item.id, field, value);
-        toast({ title: "Auto-saved!", description: `Updated ${String(field)}.` });
+        if (field === 'amount') {
+          toast({ title: "Auto-saved!", description: `Updated amount to ${formatCurrency(Number(value))}`});
+        }
     }
 
     return (
@@ -56,7 +66,7 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
             <Collapsible>
                 <div className="bg-white p-4 rounded-lg border flex items-center justify-between">
                     <CollapsibleTrigger asChild>
-                        <div className='flex items-center gap-4 cursor-pointer'>
+                        <div className='flex items-center gap-4 cursor-pointer flex-grow'>
                             <div className="flex-grow">
                                 <div className="flex items-center gap-2">
                                     <p className="font-semibold">{item.shortName}</p>
@@ -67,6 +77,16 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                         </div>
                     </CollapsibleTrigger>
                     <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 border-r pr-2 mr-2">
+                            <CircleDollarSign className="h-5 w-5 text-gray-400" />
+                            <Input 
+                                type="number"
+                                className="w-32 h-8 text-right font-semibold"
+                                value={item.amount}
+                                onChange={(e) => onUpdate(item.id, 'amount', Number(e.target.value))}
+                                onBlur={(e) => handleFieldSave('amount', Number(e.target.value))}
+                            />
+                        </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -84,7 +104,7 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                                     Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onRemove(item.id)} className="text-destructive">
+                                <DropdownMenuItem onClick={() => onRemove(item.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
                                 </DropdownMenuItem>
@@ -98,58 +118,22 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                     </div>
                 </div>
                 <CollapsibleContent>
-                    <div className="p-4 border-l border-r border-b rounded-b-lg space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Long Name</Label>
-                                <Input 
-                                    defaultValue={item.longName}
-                                    onBlur={(e) => handleFieldSave('longName', e.target.value)} 
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Amount</Label>
-                                <Input 
-                                    type="number"
-                                    defaultValue={item.amount}
-                                    onBlur={(e) => handleFieldSave('amount', Number(e.target.value))}
-                                />
-                            </div>
+                    <div className="p-4 border-l border-r border-b rounded-b-lg space-y-4 bg-gray-50">
+                        <div className="space-y-2">
+                            <Label>Long Name</Label>
+                            <p className="text-sm text-muted-foreground">{item.longName}</p>
                         </div>
                         <div className="space-y-2">
                             <Label>Initiative Priority</Label>
-                            <RadioGroup 
-                                defaultValue={item.priority} 
-                                onValueChange={(value) => handleFieldSave('priority', value)}
-                                className="flex gap-4"
-                            >
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="Low" id={`${item.id}-low`} />
-                                    <Label htmlFor={`${item.id}-low`}>Low</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="Medium" id={`${item.id}-medium`} />
-                                    <Label htmlFor={`${item.id}-medium`}>Medium</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="High" id={`${item.id}-high`} />
-                                    <Label htmlFor={`${item.id}-high`}>High</Label>
-                                </div>
-                            </RadioGroup>
+                             <p className="text-sm text-muted-foreground">{item.priority}</p>
                         </div>
                         <div className="space-y-2">
                             <Label>Rationale</Label>
-                            <Textarea 
-                                defaultValue={item.rationale} 
-                                onBlur={(e) => handleFieldSave('rationale', e.target.value)} 
-                            />
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.rationale}</p>
                         </div>
                         <div className="space-y-2">
                             <Label>Risk</Label>
-                            <Textarea
-                                defaultValue={item.risk}
-                                onBlur={(e) => handleFieldSave('risk', e.target.value)}
-                             />
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.risk}</p>
                         </div>
                     </div>
                 </CollapsibleContent>
