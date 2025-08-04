@@ -1,8 +1,20 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, serverTimestamp, setDoc } from 'firebase/firestore';
 import type { BudgetItem } from '@/lib/types';
+import { randomBytes } from 'crypto';
+
+function generateSlug(name: string) {
+    const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/[\s-]+/g, '-');
+
+    const randomString = randomBytes(3).toString('hex');
+    return `${slug}-${randomString}`;
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -29,12 +41,21 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body: Omit<BudgetItem, 'id'> = await request.json();
-    const docRef = await addDoc(collection(db, 'budgets'), {
-      ...body,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-    return NextResponse.json({ success: true, data: { id: docRef.id } });
+    
+    // Generate a unique, human-readable ID
+    const docId = generateSlug(body.shortName);
+    const docRef = doc(db, 'budgets', docId);
+
+    const newBudgetItem = {
+        ...body,
+        id: docId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    };
+    
+    await setDoc(docRef, newBudgetItem);
+
+    return NextResponse.json({ success: true, data: { id: docId } });
   } catch (error) {
     console.error('Error in POST handler:', error);
     return NextResponse.json({ success: false, error: 'Failed to save data.' }, { status: 500 });
