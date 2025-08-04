@@ -95,25 +95,25 @@ export async function uploadNarrativeFromDocx(fileBase64: string) {
             const trimmedLine = line.trim();
             const lowercasedLine = trimmedLine.toLowerCase();
 
-            if (lowercasedLine.includes('context')) {
+            if (lowercasedLine.startsWith('context')) {
                 currentSection = 'context';
-                const contentAfterHeading = trimmedLine.substring(lowercasedLine.indexOf('context') + 'context'.length).trim();
+                const contentAfterHeading = trimmedLine.substring('context'.length).trim();
                 if (contentAfterHeading.startsWith(':')) {
                     if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
                 } else if(contentAfterHeading.length > 0) {
                     sections[currentSection].push(contentAfterHeading);
                 }
-            } else if (lowercasedLine.includes('challenge')) {
+            } else if (lowercasedLine.startsWith('challenge')) {
                 currentSection = 'challenge';
-                const contentAfterHeading = trimmedLine.substring(lowercasedLine.indexOf('challenge') + 'challenge'.length).trim();
+                const contentAfterHeading = trimmedLine.substring('challenge'.length).trim();
                  if (contentAfterHeading.startsWith(':')) {
                     if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
                 } else if(contentAfterHeading.length > 0) {
                     sections[currentSection].push(contentAfterHeading);
                 }
-            } else if (lowercasedLine.includes('opportunity')) {
+            } else if (lowercasedLine.startsWith('opportunity')) {
                 currentSection = 'opportunity';
-                 const contentAfterHeading = trimmedLine.substring(lowercasedLine.indexOf('opportunity') + 'opportunity'.length).trim();
+                 const contentAfterHeading = trimmedLine.substring('opportunity'.length).trim();
                 if (contentAfterHeading.startsWith(':')) {
                     if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
                 } else if(contentAfterHeading.length > 0) {
