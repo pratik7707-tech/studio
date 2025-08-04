@@ -17,9 +17,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, MoreVertical, Tag, Trash2, Edit } from 'lucide-react';
+import { ChevronDown, MoreVertical, Tag, Trash2, Edit, Eye } from 'lucide-react';
 import type { BudgetItem } from '@/lib/types';
 
 interface InitiativeItemProps {
@@ -67,9 +68,15 @@ export function InitiativeItem({ item, onUpdate, onRemove }: InitiativeItemProps
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => onRemove(item.id)} className="text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete
