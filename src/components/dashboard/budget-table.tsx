@@ -54,14 +54,16 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
       <CardContent className="p-0">
         <div className="rounded-md border">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Category</TableHead>
-                <TableHead>Item</TableHead>
-                <TableHead className="w-[150px] text-right">Amount</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
+            {data.length > 0 && (
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[200px]">Category</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead className="w-[150px] text-right">Amount</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+            )}
             <TableBody>
               {data.length > 0 ? (
                 data.map((item) => (
