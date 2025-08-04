@@ -21,8 +21,15 @@ interface DatePickerProps {
 }
 
 export function DatePicker({ value, onChange, className }: DatePickerProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const handleSelect = (date?: Date) => {
+    onChange(date);
+    setIsOpen(false);
+  };
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}
@@ -43,7 +50,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           fromYear={2020}
           toYear={2030}
           selected={value}
-          onSelect={onChange}
+          onSelect={handleSelect}
           initialFocus
           disabled={{ before: new Date() }}
         />
