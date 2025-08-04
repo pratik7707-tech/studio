@@ -16,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpRight, Filter, Loader2, Plus, Search, Settings } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { CreatePositionSheet, PositionFormData } from "./create-position-sheet";
 
 interface PositionBudgetTableProps {
   data: BudgetItem[];
@@ -38,6 +40,14 @@ const formatCurrency = (amount: number) => {
 
 
 export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProps) {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const handleSave = (formData: PositionFormData) => {
+    console.log(formData);
+    // TODO: Connect to backend to save data
+    setIsSheetOpen(false);
+  }
+
   const exampleData: BudgetItem[] = [
     {
         id: '1',
@@ -107,7 +117,7 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
         </TabsContent>
         <TabsContent value="proposed">
           <div className="flex justify-end mb-4">
-             <Button>
+             <Button onClick={() => setIsSheetOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 New Position
               </Button>
@@ -185,6 +195,11 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
            </div>
         </TabsContent>
       </Tabs>
+      <CreatePositionSheet 
+        isOpen={isSheetOpen}
+        setIsOpen={setIsSheetOpen}
+        onSave={handleSave}
+      />
     </div>
   )
 }
