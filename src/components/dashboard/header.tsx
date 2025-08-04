@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -11,6 +12,13 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '../ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
 
 type NavItem = 'RRP Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
 
@@ -22,6 +30,18 @@ export function Header() {
     'Partner Implementation',
     'Integrated Budget',
     'Admin'
+  ];
+
+  const adminMenuItems = [
+    'Manage IP',
+    'OFA Migration Dashboard',
+    'OFA Summary Dashboard',
+    'RRP Monitoring',
+    'Mandatory Tasks',
+    'Manage Strategic Plan',
+    'Manage Standard Initiative',
+    'Manage Budget Envelope',
+    'Manage Programme Output'
   ];
 
   return (
@@ -36,18 +56,41 @@ export function Header() {
             </div>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium h-full">
               {navItems.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setActiveNav(item)}
-                  className={cn(
-                    "h-full flex items-center border-b-2 transition-colors",
-                    activeNav === item
-                      ? "text-primary font-semibold border-primary"
-                      : "text-gray-600 border-transparent hover:text-primary"
-                  )}
-                >
-                  {item}
-                </button>
+                item === 'Admin' ? (
+                  <DropdownMenu key={item}>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={() => setActiveNav(item)}
+                        className={cn(
+                          "h-full flex items-center border-b-2 transition-colors",
+                          activeNav === item
+                            ? "text-primary font-semibold border-primary"
+                            : "text-gray-600 border-transparent hover:text-primary"
+                        )}
+                      >
+                        {item}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      {adminMenuItems.map((adminItem) => (
+                        <DropdownMenuItem key={adminItem}>{adminItem}</DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <button
+                    key={item}
+                    onClick={() => setActiveNav(item)}
+                    className={cn(
+                      "h-full flex items-center border-b-2 transition-colors",
+                      activeNav === item
+                        ? "text-primary font-semibold border-primary"
+                        : "text-gray-600 border-transparent hover:text-primary"
+                    )}
+                  >
+                    {item}
+                  </button>
+                )
               ))}
             </nav>
           </div>
