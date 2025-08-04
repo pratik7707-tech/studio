@@ -25,9 +25,9 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleAddItem = (newItem: Omit<BudgetItem, 'id'>) => {
-    setData([
-      ...data,
-      { id: `new-${Date.now()}`, ...newItem },
+    setData((prevData) => [
+      ...prevData,
+      { ...newItem, id: `new-${Date.now()}` },
     ]);
   };
 
@@ -96,6 +96,7 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
                     item={item}
                     onUpdate={handleUpdateItem}
                     onRemove={handleRemoveItem}
+                    onSave={handleUpdateItem}
                 />
               ))
             ) : (
