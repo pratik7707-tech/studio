@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, TriangleAlert, Filter } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
-import type { Dispatch, SetStateAction } from 'react';
+import { type Dispatch, type SetStateAction, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     DropdownMenu,
@@ -14,6 +14,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
+import { CreateInitiativeSheet } from "./create-initiative-sheet";
 
 interface BudgetTableProps {
   title: string;
@@ -22,10 +23,12 @@ interface BudgetTableProps {
 }
 
 export function BudgetTable({ title, data, setData }: BudgetTableProps) {
-  const handleAddItem = () => {
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const handleAddItem = (newItem: Omit<BudgetItem, 'id'>) => {
     setData([
       ...data,
-      { id: `new-${Date.now()}`, category: '', item: '', amount: 0 },
+      { id: `new-${Date.now()}`, ...newItem },
     ]);
   };
 
@@ -47,6 +50,7 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
   };
 
   return (
+    <>
     <Card className="shadow-none border-none">
       <CardHeader className="p-0 mb-4">
         <div className="flex items-center justify-between">
@@ -72,7 +76,7 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleAddItem}>
+                    <DropdownMenuItem onClick={() => setIsSheetOpen(true)}>
                       New Initiative
                     </DropdownMenuItem>
                     <DropdownMenuItem>
@@ -154,5 +158,20 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
         </div>
       </CardContent>
     </Card>
+    <CreateInitiativeSheet 
+        isOpen={isSheetOpen}
+        setIsOpen={setIsSheetOpen}
+        onSave={(data) => {
+            // This is a temporary mapping. We will need to decide
+            // how the new initiative form data maps to the budget item.
+            handleAddItem({
+                category: data.department,
+                item: data.shortName,
+                amount: 0, // Default amount for now
+            });
+            setIsSheetOpen(false);
+        }}
+    />
+    </>
   );
 }
