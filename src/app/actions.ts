@@ -93,33 +93,33 @@ export async function uploadNarrativeFromDocx(fileBase64: string) {
 
         for (const line of lines) {
             const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+
             const lowercasedLine = trimmedLine.toLowerCase();
+            
+            let headingFound: keyof typeof sections | null = null;
+            let contentAfterHeading = '';
 
             if (lowercasedLine.startsWith('context')) {
-                currentSection = 'context';
-                const contentAfterHeading = trimmedLine.substring('context'.length).trim();
-                if (contentAfterHeading.startsWith(':')) {
-                    if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
-                } else if(contentAfterHeading.length > 0) {
-                    sections[currentSection].push(contentAfterHeading);
-                }
+                headingFound = 'context';
+                contentAfterHeading = trimmedLine.substring('context'.length).trim();
             } else if (lowercasedLine.startsWith('challenge')) {
-                currentSection = 'challenge';
-                const contentAfterHeading = trimmedLine.substring('challenge'.length).trim();
-                 if (contentAfterHeading.startsWith(':')) {
-                    if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
-                } else if(contentAfterHeading.length > 0) {
-                    sections[currentSection].push(contentAfterHeading);
-                }
+                headingFound = 'challenge';
+                contentAfterHeading = trimmedLine.substring('challenge'.length).trim();
             } else if (lowercasedLine.startsWith('opportunity')) {
-                currentSection = 'opportunity';
-                 const contentAfterHeading = trimmedLine.substring('opportunity'.length).trim();
+                headingFound = 'opportunity';
+                contentAfterHeading = trimmedLine.substring('opportunity'.length).trim();
+            }
+
+            if (headingFound) {
+                currentSection = headingFound;
                 if (contentAfterHeading.startsWith(':')) {
-                    if (contentAfterHeading.length > 1) sections[currentSection].push(contentAfterHeading.substring(1).trim());
-                } else if(contentAfterHeading.length > 0) {
+                    contentAfterHeading = contentAfterHeading.substring(1).trim();
+                }
+                if (contentAfterHeading) {
                     sections[currentSection].push(contentAfterHeading);
                 }
-            } else if (currentSection && trimmedLine) {
+            } else if (currentSection) {
                 sections[currentSection].push(trimmedLine);
             }
         }
