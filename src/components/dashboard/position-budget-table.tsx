@@ -28,7 +28,8 @@ const departmentMap: { [key: string]: string } = {
   'B0002': 'B0002-Corp HQ - Management and Admin',
   'B0001': 'B0001-Executive Office',
   'B0010': 'B0010-Ethics Office',
-  'B2107': 'B2107-Supply Chain Management Unit',
+  'B2107': 'B2107 - Supply Chain Management Unit',
+  'SAVINGS': 'Saving from Posts',
 };
 
 const formatCurrency = (amount: number) => {
@@ -41,39 +42,41 @@ const formatCurrency = (amount: number) => {
 const exampleData = [
   {
       id: '1',
-      department: 'B0002',
-      positionId: '123456',
-      grade: 'P-5',
-      location: 'New York',
-      positionTitle: 'Snr. Management Advisor',
-      justification: 'Lorem ipsum dolor sit',
-      amount: 100000.00,
-      variance: 2000.00,
-      effectiveDate: '01/01/2026',
+      department: 'SAVINGS',
+      positionId: '',
+      grade: '',
+      location: '',
+      positionTitle: '',
+      justification: '',
+      amount: 0.00,
+      variance: undefined,
+      effectiveDate: 'Jan 2026',
       type: 'position' as 'position',
       shortName: '',
       longName: '',
       priority: 'Medium' as 'Medium',
       rationale: '',
       risk: '',
+      isStandard: false,
   },
   {
       id: '2',
-      department: 'B0002',
-      positionId: '123457',
-      grade: 'G-7',
-      location: 'New York',
-      positionTitle: 'Programme Associate',
-      justification: 'Lorem ipsum dolor sit',
-      amount: 80000.00,
-      variance: undefined,
-      effectiveDate: undefined,
+      department: 'B2107',
+      positionId: '010',
+      grade: 'USG',
+      location: 'Albania',
+      positionTitle: 'test',
+      justification: 'test just',
+      amount: 428997.00,
+      variance: 428997.00,
+      effectiveDate: 'May 2026',
       type: 'position' as 'position',
-      shortName: '',
-      longName: '',
+      shortName: 'test',
+      longName: 'test',
       priority: 'Medium' as 'Medium',
       rationale: '',
       risk: '',
+      isStandard: false,
   },
 ];
 
@@ -156,11 +159,10 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
                     <TableRow key={item.id}>
                       <TableCell className="font-medium flex items-center gap-1">
                         {departmentMap[item.department] || item.department}
-                        {item.department === 'Saving from Posts' && <ArrowUpRight className="h-4 w-4" />}
+                        {(item.department === 'SAVINGS' || item.positionId === '010') && <ArrowUpRight className="h-4 w-4" />}
                       </TableCell>
                       <TableCell className="flex items-center gap-1">
                         {item.positionId}
-                        {item.positionId && <ArrowUpRight className="h-4 w-4" />}
                       </TableCell>
                       <TableCell>{item.grade}</TableCell>
                       <TableCell>{item.location}</TableCell>
