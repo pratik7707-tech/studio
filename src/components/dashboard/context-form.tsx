@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Dialog,
@@ -13,9 +14,17 @@ import { Label } from '@/components/ui/label';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { NarrativeData } from '@/lib/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   Context: z.string().optional(),
@@ -34,10 +43,12 @@ interface ContextFormProps {
 }
 
 export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }: ContextFormProps) {
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const {
     handleSubmit,
     control,
     reset,
+    formState: { isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { Context: '', Challenges: '', Opportunities: '' },
@@ -59,53 +70,77 @@ export function ContextForm({ isOpen, setIsOpen, onSave, isSaving, initialData }
     onSave(data);
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Narrative' : 'Add Narrative'}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="context">Context</Label>
-                <Controller
-                  name="Context"
-                  control={control}
-                  render={({ field }) => <Textarea {...field} placeholder="Enter context" />}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="challenge">Challenge</Label>
-                <Controller
-                  name="Challenges"
-                  control={control}
-                  render={({ field }) => <Textarea {...field} placeholder="Enter challenge" />}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="opportunity">Opportunity</Label>
-                <Controller
-                  name="Opportunities"
-                  control={control}
-                  render={({ field }) => <Textarea {...field} placeholder="Enter opportunity" />}
-                />
-              </div>
-            </>
+  const handleOpenChange = (open: boolean) => {
+    if (!open && isDirty) {
+      setIsAlertOpen(true);
+    } else {
+      setIsOpen(open);
+    }
+  };
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isSaving}>
+  const handleConfirmClose = () => {
+    setIsAlertOpen(false);
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEditing ? 'Edit Narrative' : 'Add Narrative'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="context">Context</Label>
+                  <Controller
+                    name="Context"
+                    control={control}
+                    render={({ field }) => <Textarea {...field} placeholder="Enter context" />}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="challenge">Challenge</Label>
+                  <Controller
+                    name="Challenges"
+                    control={control}
+                    render={({ field }) => <Textarea {...field} placeholder="Enter challenge" />}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="opportunity">Opportunity</Label>
+                  <Controller
+                    name="Opportunities"
+                    control={control}
+                    render={({ field }) => <Textarea {...field} placeholder="Enter opportunity" />}
+                  />
+                </div>
+              </>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
                 Cancel
               </Button>
-            </DialogClose>
-            <Button type="submit" disabled={isSaving}>
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>All the unsaved data will be lost, please confirm to proceed?</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmClose}>Yes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
