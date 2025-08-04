@@ -288,7 +288,7 @@ export function CreateInitiativeSheet({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>No</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmClose}>Yes</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={handleConfirmClose}>Yes</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
