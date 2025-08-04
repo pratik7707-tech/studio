@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFoo
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, TriangleAlert } from "lucide-react";
 import type { BudgetItem } from "@/lib/types";
 import type { Dispatch, SetStateAction } from 'react';
 
@@ -63,45 +63,58 @@ export function BudgetTable({ title, data, setData }: BudgetTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <Input
-                      value={item.category}
-                      onChange={(e) => handleUpdateItem(item.id, 'category', e.target.value)}
-                      className="h-8"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={item.item}
-                      onChange={(e) => handleUpdateItem(item.id, 'item', e.target.value)}
-                      className="h-8"
-                    />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Input
-                      type="number"
-                      value={item.amount}
-                      onChange={(e) => handleUpdateItem(item.id, 'amount', Number(e.target.value))}
-                      className="h-8 text-right"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
+              {data.length > 0 ? (
+                data.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Input
+                        value={item.category}
+                        onChange={(e) => handleUpdateItem(item.id, 'category', e.target.value)}
+                        className="h-8"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={item.item}
+                        onChange={(e) => handleUpdateItem(item.id, 'item', e.target.value)}
+                        className="h-8"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        value={item.amount}
+                        onChange={(e) => handleUpdateItem(item.id, 'amount', Number(e.target.value))}
+                        className="h-8 text-right"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
-                    <TableCell colSpan={2} className="font-bold">Total</TableCell>
-                    <TableCell className="text-right font-bold">{formatCurrency(totalAmount)}</TableCell>
-                    <TableCell></TableCell>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                        <TriangleAlert className="h-5 w-5 text-yellow-500" />
+                        No data available
+                    </div>
+                  </TableCell>
                 </TableRow>
-            </TableFooter>
+              )}
+            </TableBody>
+            {data.length > 0 && (
+                <TableFooter>
+                    <TableRow>
+                        <TableCell colSpan={2} className="font-bold">Total</TableCell>
+                        <TableCell className="text-right font-bold">{formatCurrency(totalAmount)}</TableCell>
+                        <TableCell></TableCell>
+                    </TableRow>
+                </TableFooter>
+            )}
           </Table>
         </div>
       </CardContent>
