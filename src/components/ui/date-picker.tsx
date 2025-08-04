@@ -33,7 +33,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, 'MM/yyyy') : <span>mm/yyyy</span>}
+          {value ? format(value, 'MMM yyyy') : <span>mm/yyyy</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
