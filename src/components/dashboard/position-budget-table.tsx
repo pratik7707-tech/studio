@@ -38,6 +38,45 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+const exampleData = [
+  {
+      id: '1',
+      department: 'B0002',
+      positionId: '123456',
+      grade: 'P-5',
+      location: 'New York',
+      positionTitle: 'Snr. Management Advisor',
+      justification: 'Lorem ipsum dolor sit',
+      amount: 100000.00,
+      variance: 2000.00,
+      effectiveDate: '01/01/2026',
+      type: 'position' as 'position',
+      shortName: '',
+      longName: '',
+      priority: 'Medium' as 'Medium',
+      rationale: '',
+      risk: '',
+  },
+  {
+      id: '2',
+      department: 'B0002',
+      positionId: '123457',
+      grade: 'G-7',
+      location: 'New York',
+      positionTitle: 'Programme Associate',
+      justification: 'Lorem ipsum dolor sit',
+      amount: 80000.00,
+      variance: undefined,
+      effectiveDate: undefined,
+      type: 'position' as 'position',
+      shortName: '',
+      longName: '',
+      priority: 'Medium' as 'Medium',
+      rationale: '',
+      risk: '',
+  },
+];
+
 
 export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -83,12 +122,12 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
            </div>
         </TabsContent>
         <TabsContent value="proposed">
-          <div className="flex justify-end mb-4">
-             <Button onClick={() => setIsSheetOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                New Position
-              </Button>
-          </div>
+            <div className="flex justify-end mb-4">
+                <Button onClick={() => setIsSheetOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Position
+                </Button>
+            </div>
           <div className="border rounded-lg">
             <Table>
               <TableHeader>
@@ -113,7 +152,7 @@ export function PositionBudgetTable({ data, isLoading }: PositionBudgetTableProp
                     </TableCell>
                   </TableRow>
                 ) : (
-                  data.map(item => (
+                  exampleData.map(item => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium flex items-center gap-1">
                         {departmentMap[item.department] || item.department}
