@@ -91,6 +91,23 @@ export function ManageStandardInitiativesClient() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/standard-initiatives?id=${id}`, {
+        method: 'DELETE',
+      });
+      const result = await response.json();
+      if (result.success) {
+        setInitiatives(prev => prev.filter(i => i.id !== id));
+        toast({ title: 'Success!', description: 'Standard initiative deleted successfully.' });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+      }
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete initiative.' });
+    }
+  };
+
 
   return (
     <>
@@ -109,7 +126,7 @@ export function ManageStandardInitiativesClient() {
                   <CardTitle className="text-lg font-semibold">Standard Initiatives</CardTitle>
               </CardHeader>
               <CardContent>
-                  <InitiativesTable data={initiatives} isLoading={isLoading} onEdit={handleEdit} />
+                  <InitiativesTable data={initiatives} isLoading={isLoading} onEdit={handleEdit} onDelete={handleDelete} />
                   <div className="flex justify-end items-center gap-4 mt-4">
                       <span className="text-sm text-muted-foreground">Records per page:</span>
                       <Select defaultValue="10">

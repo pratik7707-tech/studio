@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import type { StandardInitiative } from '@/lib/types';
 import { randomBytes } from 'crypto';
 
@@ -75,5 +75,23 @@ export async function PUT(request: Request) {
     } catch (error) {
         console.error('Error in PUT handler:', error);
         return NextResponse.json({ success: false, error: 'Failed to update data.' }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: Request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'Document ID is required.' }, { status: 400 });
+        }
+
+        await deleteDoc(doc(db, COLLECTION_NAME, id));
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error in DELETE handler:', error);
+        return NextResponse.json({ success: false, error: 'Failed to delete data.' }, { status: 500 });
     }
 }
