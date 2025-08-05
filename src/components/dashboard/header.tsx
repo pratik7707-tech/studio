@@ -72,19 +72,6 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium h-full">
               {navItems.map((item) => {
                 const link = navLinks[item];
-                const buttonContent = (
-                  <button
-                    onClick={() => setActiveNav(item)}
-                    className={cn(
-                      "h-full flex items-center border-b-2 transition-colors",
-                      activeNav === item
-                        ? "text-primary font-semibold border-primary"
-                        : "text-gray-600 border-transparent hover:text-primary"
-                    )}
-                  >
-                    {item}
-                  </button>
-                );
 
                 if (item === 'Admin') {
                   return (
@@ -111,12 +98,22 @@ export function Header() {
                     </DropdownMenu>
                   )
                 }
+                
+                const commonProps = {
+                    onClick: () => setActiveNav(item),
+                    className: cn(
+                        "h-full flex items-center border-b-2 transition-colors",
+                        activeNav === item
+                        ? "text-primary font-semibold border-primary"
+                        : "text-gray-600 border-transparent hover:text-primary"
+                    )
+                };
 
                 if (link) {
-                  return <Link key={item} href={link} legacyBehavior passHref>{buttonContent}</Link>;
+                  return <Link key={item} href={link} {...commonProps}>{item}</Link>;
                 }
 
-                return <div key={item}>{buttonContent}</div>;
+                return <button key={item} {...commonProps}>{item}</button>;
               })}
             </nav>
           </div>
