@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Loader2 } from "lucide-react";
+import { MoreVertical, Loader2, Edit, Trash2 } from "lucide-react";
 import type { BudgetEnvelope } from "@/lib/types";
 import {
     DropdownMenu,
@@ -72,8 +72,14 @@ export function EnvelopesTable({ data, isLoading }: EnvelopesTableProps) {
                           </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                 </TableCell>
