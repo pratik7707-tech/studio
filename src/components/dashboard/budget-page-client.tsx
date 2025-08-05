@@ -23,6 +23,7 @@ export function BudgetPageClient() {
     async function loadBudgets() {
       setIsLoading(true);
       try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
         const [opRes, posRes] = await Promise.all([
           fetch('/api/budgets?type=operating'),
           fetch('/api/positions'),

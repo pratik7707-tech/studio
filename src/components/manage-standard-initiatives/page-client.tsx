@@ -29,6 +29,7 @@ export function ManageStandardInitiativesClient() {
     async function loadInitiatives() {
       setIsLoading(true);
       try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
         const res = await fetch('/api/standard-initiatives');
         const result = await res.json();
         if (result.success) {
