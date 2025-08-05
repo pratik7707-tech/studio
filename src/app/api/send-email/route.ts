@@ -1,20 +1,33 @@
 
 import { NextResponse } from 'next/server';
+import { Resend } from 'resend';
 
 export async function POST(request: Request) {
   try {
-    // This is a placeholder. The email sending logic was temporarily removed.
-    // To re-enable, you would implement an email service like Resend, SendGrid, or AWS SES.
     const { email, narrative } = await request.json();
 
-    console.log('Attempted to send email to:', email);
-    console.log('With narrative:', narrative);
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json({ success: false, error: 'Email service is not configured on the server.' }, { status: 500 });
+    }
+    
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Simulate a successful response
-    return NextResponse.json({ success: true, message: 'Email functionality is temporarily disabled.' });
+    const { data, error } = await resend.emails.send({
+        from: 'onboarding@pratiktest.com',
+        to: email,
+        subject: 'Your Budget Narrative',
+        html: `<p>Context: ${narrative.Context}</p><p>Challenges: ${narrative.Challenges}</p><p>Opportunities: ${narrative.Opportunities}</p>`,
+    });
+
+    if (error) {
+        console.error('Resend error:', error);
+        return NextResponse.json({ success: false, error: 'Failed to send email.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Email sent successfully.' });
 
   } catch (error) {
-    console.error('Error in send-email placeholder handler:', error);
+    console.error('Error in send-email handler:', error);
     return NextResponse.json({ success: false, error: 'An internal server error occurred.' }, { status: 500 });
   }
 }
