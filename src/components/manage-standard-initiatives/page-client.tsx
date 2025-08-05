@@ -95,7 +95,7 @@ export function ManageStandardInitiativesClient() {
                   <div className="flex justify-end items-center gap-4 mt-4">
                       <span className="text-sm text-muted-foreground">Records per page:</span>
                       <Select defaultValue="10">
-                          <SelectTrigger className="w-16">
+                          <SelectTrigger className="w-20">
                           <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -105,11 +105,11 @@ export function ManageStandardInitiativesClient() {
                           </SelectContent>
                       </Select>
                       <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" >{"<"}</Button>
-                          <Button variant="outline" size="sm" className="bg-gray-200">1</Button>
-                          <Button variant="outline" size="sm" >2</Button>
-                          <Button variant="outline" size="sm" >3</Button>
-                          <Button variant="outline" size="sm">{">"}</Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8" disabled>{"<<"}</Button>
+                          <Button variant="default" size="icon" className="h-8 w-8">1</Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8">2</Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8">3</Button>
+                          <Button variant="outline" size="icon" className="h-8 w-8">{">>"}</Button>
                       </div>
                   </div>
               </CardContent>
