@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import type { BudgetEnvelope } from '@/lib/types';
 import { Header } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, BarChart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EnvelopesTable } from './envelopes-table';
 import {
@@ -16,12 +15,14 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import { CreateEnvelopeDialog, type EnvelopeFormData } from './create-envelope-dialog';
+import { EnvelopesChartDialog } from './envelopes-chart';
 
 
 export function ManageBudgetEnvelopeClient() {
   const [envelopes, setEnvelopes] = useState<BudgetEnvelope[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChartOpen, setIsChartOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -50,6 +51,26 @@ export function ManageBudgetEnvelopeClient() {
 
   const totalAmount = useMemo(() => {
     return envelopes.reduce((sum, item) => sum + item.totalAmount, 0);
+  }, [envelopes]);
+  
+  const chartData = useMemo(() => {
+    const yearlyTotals: {[key: string]: number} = {
+        '2026': 0,
+        '2027': 0,
+        '2028': 0,
+        '2029': 0,
+    };
+    envelopes.forEach(env => {
+        yearlyTotals['2026'] += env.y2026;
+        yearlyTotals['2027'] += env.y2027;
+        yearlyTotals['2028'] += env.y2028;
+        yearlyTotals['2029'] += env.y2029;
+    });
+
+    return Object.keys(yearlyTotals).map(year => ({
+        year,
+        total: yearlyTotals[year],
+    }));
   }, [envelopes]);
 
   const formatCurrency = (amount: number) => {
@@ -108,6 +129,10 @@ export function ManageBudgetEnvelopeClient() {
                           <SelectItem value="2026-29">Budget 2026-29</SelectItem>
                       </SelectContent>
                   </Select>
+                  <Button variant="outline" onClick={() => setIsChartOpen(true)}>
+                    <BarChart className="mr-2 h-4 w-4" />
+                    View Chart
+                  </Button>
                   <Button onClick={() => setIsDialogOpen(true)}>
                       <Plus className="mr-2 h-4 w-4" />
                       Manage Budget Envelope
@@ -144,6 +169,11 @@ export function ManageBudgetEnvelopeClient() {
         setIsOpen={setIsDialogOpen}
         onSave={handleSave}
         isSaving={isSaving}
+      />
+      <EnvelopesChartDialog
+        isOpen={isChartOpen}
+        setIsOpen={setIsChartOpen}
+        data={chartData}
       />
     </>
   );
