@@ -43,7 +43,7 @@ export function Header() {
     { label: 'Mandatory Tasks', href: '#' },
     { label: 'Manage Strategic Plan', href: '#' },
     { label: 'Manage Standard Initiative', href: '/manage-standard-initiatives' },
-    { label: 'Manage Budget Envelope', href: '#' },
+    { label: 'Manage Budget Envelope', href: '/manage-budget-envelope' },
     { label: 'Manage Programme Output', href: '#' }
   ];
 

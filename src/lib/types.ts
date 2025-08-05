@@ -46,3 +46,13 @@ export interface StandardInitiative {
     createdAt?: string;
     updatedAt?: string;
 }
+
+export interface BudgetEnvelope {
+  id: string;
+  department: string;
+  y2026: number;
+  y2027: number;
+  y2028: number;
+  y2029: number;
+  totalAmount: number;
+}
