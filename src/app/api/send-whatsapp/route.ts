@@ -1,34 +1,40 @@
 
 import { NextResponse } from 'next/server';
+import twilio from 'twilio';
 
 export async function POST(request: Request) {
   try {
     const { phoneNumber, narrative } = await request.json();
 
-    // TODO: Add your custom WhatsApp sending logic here.
-    // This is where you would integrate with your chosen WhatsApp API provider
-    // or your own custom solution.
-    // For now, we will simulate a successful response.
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-    console.log(`Simulating sending WhatsApp to ${phoneNumber}`);
-    console.log('Narrative:', narrative);
+    if (!accountSid || !authToken || !twilioPhoneNumber) {
+        return NextResponse.json({ success: false, error: 'Twilio service is not configured on the server. Please check environment variables.' }, { status: 500 });
+    }
 
-    // You can replace this with your actual sending logic.
-    // If your logic is asynchronous, make sure this function remains async.
-    
-    // Example of what your logic might look like:
-    // const result = await myWhatsAppSender.send({
-    //   to: phoneNumber,
-    //   body: `Context: ${narrative.Context}\nChallenges: ${narrative.Challenges}\nOpportunities: ${narrative.Opportunities}`
-    // });
-    // if (!result.success) {
-    //   return NextResponse.json({ success: false, error: 'Failed to send WhatsApp message.' }, { status: 500 });
-    // }
+    const client = twilio(accountSid, authToken);
+
+    const messageBody = `Budget Narrative:
+Context: ${narrative.Context}
+Challenges: ${narrative.Challenges}
+Opportunities: ${narrative.Opportunities}`;
+
+    await client.messages.create({
+        body: messageBody,
+        from: `whatsapp:${twilioPhoneNumber}`,
+        to: `whatsapp:${phoneNumber}`
+    });
 
     return NextResponse.json({ success: true, message: 'WhatsApp message sent successfully.' });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in send-whatsapp handler:', error);
-    return NextResponse.json({ success: false, error: 'An internal server error occurred.' }, { status: 500 });
+    let errorMessage = 'An internal server error occurred.';
+    if (error.message) {
+        errorMessage = error.message;
+    }
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
