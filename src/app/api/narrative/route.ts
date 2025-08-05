@@ -42,33 +42,32 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
-
+    const contentType = request.headers.get('content-type') || '';
     let dataToSave: { Context: string; Challenges: string; Opportunities: string; fileName?: string };
 
-    if (file) {
-        const fileBuffer = Buffer.from(await file.arrayBuffer());
-        
-        // Upload file to Firebase Storage
-        const storageRef = ref(storage, `narrative_documents/${file.name}`);
-        await uploadBytes(storageRef, fileBuffer, { contentType: file.type });
-        
-        // Parse docx for text content
-        const parsedContent = await parseDocx(fileBuffer);
-
-        dataToSave = {
-            ...parsedContent,
-            fileName: file.name
-        };
-    } else {
-        const body = await request.json().catch(() => formData.get('jsonData'));
-        const jsonData = typeof body === 'string' ? JSON.parse(body) : body;
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const file = formData.get('file') as File | null;
+      if (file) {
+          const fileBuffer = Buffer.from(await file.arrayBuffer());
+          
+          const storageRef = ref(storage, `narrative_documents/${file.name}`);
+          await uploadBytes(storageRef, fileBuffer, { contentType: file.type });
+          
+          const parsedContent = await parseDocx(fileBuffer);
+          dataToSave = { ...parsedContent, fileName: file.name };
+      } else {
+        return NextResponse.json({ success: false, error: 'No file found in form data.' }, { status: 400 });
+      }
+    } else if (contentType.includes('application/json')) {
+        const jsonData = await request.json();
         dataToSave = {
             Context: jsonData.Context || "",
             Challenges: jsonData.Challenges || "",
             Opportunities: jsonData.Opportunities || "",
         };
+    } else {
+      return NextResponse.json({ success: false, error: 'Unsupported Content-Type.' }, { status: 415 });
     }
     
     const docRef = doc(db, 'narratives', NARRATIVE_DOC_ID);
