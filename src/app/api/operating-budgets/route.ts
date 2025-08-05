@@ -5,7 +5,7 @@ import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, s
 import type { BudgetItem } from '@/lib/types';
 import { randomBytes } from 'crypto';
 
-const COLLECTION_NAME = 'budgets';
+const COLLECTION_NAME = 'operating-budgets';
 
 function generateSlug(name: string) {
     const slug = name
@@ -20,7 +20,7 @@ function generateSlug(name: string) {
 
 export async function GET() {
   try {
-    const q = query(collection(db, COLLECTION_NAME), where('type', '==', 'operating'));
+    const q = query(collection(db, COLLECTION_NAME));
     const querySnapshot = await getDocs(q);
     const data: BudgetItem[] = [];
     querySnapshot.forEach((doc) => {
