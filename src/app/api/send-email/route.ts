@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     `;
 
     const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: 'onboarding@pratiktest.com',
       to: email,
       subject: 'Proposal Narrative',
       html: emailHtml,
