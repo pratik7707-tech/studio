@@ -51,6 +51,8 @@ export function ProposalNarrative() {
   const [isFormOpen, setFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [email, setEmail] = useState('');
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -181,6 +183,36 @@ export function ProposalNarrative() {
     toast({ title: "Success!", description: "Narrative exported to Excel." });
   };
   
+  const handleSendEmail = async () => {
+    if (!email) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Please enter an email address.' });
+      return;
+    }
+    if (!narrativeData) {
+      toast({ variant: 'destructive', title: 'Error', description: 'No narrative data to send.' });
+      return;
+    }
+    setIsSendingEmail(true);
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, narrative: narrativeData }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        toast({ title: 'Success!', description: `Narrative sent to ${email}` });
+        setEmail('');
+      } else {
+        toast({ variant: 'destructive', title: 'Error sending email', description: result.error });
+      }
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to connect to the server.' });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+  
   if (isLoading) {
     return (
       <Card className="shadow-none border-none">
@@ -303,6 +335,29 @@ export function ProposalNarrative() {
           placeholder="No opportunities identified."
         />
       </CardContent>
+      <CardFooter className="p-0 pt-4 mt-4 border-t">
+        <div className="w-full space-y-2">
+            <Label htmlFor="email-narrative" className="font-semibold">Send Narrative to Email</Label>
+            <div className="flex gap-2">
+                <Input 
+                    id="email-narrative"
+                    type="email"
+                    placeholder="Enter email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isSendingEmail}
+                />
+                <Button onClick={handleSendEmail} disabled={isSendingEmail}>
+                    {isSendingEmail ? (
+                        <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Send className="mr-2 h-4 w-4" />
+                    )}
+                    Send Email
+                </Button>
+            </div>
+        </div>
+      </CardFooter>
       <ContextForm
         isOpen={isFormOpen}
         setIsOpen={setFormOpen}
