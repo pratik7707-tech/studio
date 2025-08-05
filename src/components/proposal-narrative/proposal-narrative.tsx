@@ -1,7 +1,7 @@
 
 'use client';
 import { Button } from '@/components/ui/button';
-import { Plus, MoreVertical, Edit, Trash2, Upload } from 'lucide-react';
+import { Plus, MoreVertical, Edit, Trash2, Upload, FileDown } from 'lucide-react';
 import type { NarrativeData } from '@/lib/types';
 import { useState, useEffect, useRef } from 'react';
 import { ContextForm } from './context-form';
@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from '../ui/skeleton';
+import * as XLSX from 'xlsx';
 
 interface NarrativeSectionProps {
   title: string;
@@ -162,6 +163,24 @@ export function ProposalNarrative() {
     }
   };
 
+  const handleExport = () => {
+    if (!narrativeData) return;
+
+    const data = [
+      { Category: "Context", Content: narrativeData.Context },
+      { Category: "Challenges", Content: narrativeData.Challenges },
+      { Category: "Opportunities", Content: narrativeData.Opportunities },
+    ];
+    
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Narrative");
+    XLSX.writeFile(wb, "narrative.xlsx");
+    
+    toast({ title: "Success!", description: "Narrative exported to Excel." });
+  };
+
+
   if (isLoading) {
     return (
       <Card className="shadow-none border-none">
@@ -238,6 +257,10 @@ export function ProposalNarrative() {
              <DropdownMenuItem onClick={handleUploadClick}>
               <Upload className="mr-2 h-4 w-4" />
               <span>Upload .docx</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExport}>
+              <FileDown className="mr-2 h-4 w-4" />
+              <span>Export to Excel</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <AlertDialog>
