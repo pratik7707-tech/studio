@@ -38,7 +38,7 @@ export function InitiativesTable({ data, isLoading }: InitiativesTableProps) {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={3} className="text-center">
+              <TableCell colSpan={3} className="text-center h-24">
                 <Loader2 className="mx-auto h-8 w-8 animate-spin" />
               </TableCell>
             </TableRow>
