@@ -1,6 +1,7 @@
 
 
 
+
 export interface BudgetItem {
   id: string;
   type: 'operating' | 'position';
@@ -42,4 +43,6 @@ export interface StandardInitiative {
     id: string;
     shortName: string;
     description: string;
+    createdAt?: string;
+    updatedAt?: string;
 }

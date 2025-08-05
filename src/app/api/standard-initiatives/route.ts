@@ -1,61 +1,59 @@
 
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc } from 'firebase/firestore';
+import type { StandardInitiative } from '@/lib/types';
+import { randomBytes } from 'crypto';
 
-const initiatives = [
-    {
-      id: '1',
-      shortName: 'Capacity building - technical and programmatic',
-      description: 'Technical and programmatic capacity building of country offices and partners, including humanitarian response and preparedness',
-    },
-    {
-      id: '2',
-      shortName: 'Communications for specific thematic areas',
-      description: 'Communication relating to specific thematic areas',
-    },
-    {
-      id: '3',
-      shortName: 'General communications and branding',
-      description: 'General communications and branding, including web-site maintenance',
-    },
-    {
-      id: '4',
-      shortName: 'Humanitarian response and preparedness coordination',
-      description: 'Humanitarian response and preparedness coordination',
-    },
-    {
-      id: '5',
-      shortName: 'Interagency collaboration and UN Reform',
-      description: 'Interagency collaboration and implementation of the UN reform agenda',
-    },
-    {
-      id: '6',
-      shortName: 'Knowledge management',
-      description: 'Generate, promote and disseminate knowledge',
-    },
-    {
-      id: '7',
-      shortName: 'Office management and operations',
-      description: 'Prorated general office management and operations costs; applies to both programme and management/development effectiveness activities',
-    },
-    {
-      id: '8',
-      shortName: 'Operations and security support',
-      description: 'Financial, budget, HR, IT, procurement, logistics, security etc. advisory support and capacity building of country offices; includes training workshops and missions',
-    },
-    {
-      id: '9',
-      shortName: 'Partnerships - general',
-      description: 'Build and expand various kinds of programmatic partnerships, excluding South-South and Triangular Cooperation',
-    },
-    {
-      id: '10',
-      shortName: 'Planning meetings',
-      description: 'Planning meetings, including regional planning meeting, retreats and staff engagement activities',
-    },
-];
+const COLLECTION_NAME = 'standard-initiatives';
 
+function generateSlug(name: string) {
+    const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/[\s-]+/g, '-');
+
+    const randomString = randomBytes(3).toString('hex');
+    return `${slug}-${randomString}`;
+}
 
 export async function GET() {
-  // In a real application, you would fetch this from a database.
-  return NextResponse.json({ success: true, data: initiatives });
+  try {
+    const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
+    const data: StandardInitiative[] = [];
+    querySnapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...doc.data() } as StandardInitiative);
+    });
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error("Error getting documents: ", error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch data from Firestore.' }, { status: 500 });
+  }
 }
+
+export async function POST(request: Request) {
+    try {
+      const body: Omit<StandardInitiative, 'id'> = await request.json();
+      
+      const docId = generateSlug(body.shortName);
+      const docRef = doc(db, COLLECTION_NAME, docId);
+  
+      const newInitiative = {
+          ...body,
+          id: docId,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+      };
+      
+      await setDoc(docRef, newInitiative);
+  
+      // Return the full object including the ID and a placeholder for the timestamp
+      const savedData = { ...newInitiative, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      return NextResponse.json({ success: true, data: savedData });
+    } catch (error) {
+      console.error('Error in POST handler:', error);
+      return NextResponse.json({ success: false, error: 'Failed to save data.' }, { status: 500 });
+    }
+  }
+

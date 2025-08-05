@@ -16,10 +16,13 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
+import { CreateInitiativeSheet, type InitiativeFormData } from './create-initiative-sheet';
 
 export function ManageStandardInitiativesClient() {
   const [initiatives, setInitiatives] = useState<StandardInitiative[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -43,9 +46,32 @@ export function ManageStandardInitiativesClient() {
   }, [toast]);
 
   const handleCreate = () => {
-    // Logic to open a creation form/sheet
-    console.log('Create new standard initiative');
+    setIsSheetOpen(true);
   };
+  
+  const handleSave = async (formData: InitiativeFormData) => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/standard-initiatives', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setInitiatives(prev => [...prev, result.data]);
+        toast({ title: 'Success!', description: 'Standard initiative saved successfully.' });
+        setIsSheetOpen(false);
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+      }
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to save initiative.' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -87,6 +113,12 @@ export function ManageStandardInitiativesClient() {
             </CardContent>
         </Card>
       </main>
+      <CreateInitiativeSheet
+        isOpen={isSheetOpen}
+        setIsOpen={setIsSheetOpen}
+        onSave={handleSave}
+        isSaving={isSaving}
+      />
     </div>
   );
 }
