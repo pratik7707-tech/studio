@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import type { BudgetItem } from '@/lib/types';
+import type { BudgetItem, StandardInitiative } from '@/lib/types';
 import { Header } from './header';
 import { MetricCard } from './metric-card';
 import { BudgetDetails } from './budget-details';
@@ -16,17 +16,19 @@ import { format } from 'date-fns';
 export function BudgetPageClient() {
   const [operatingBudget, setOperatingBudget] = useState<BudgetItem[]>([]);
   const [positionBudget, setPositionBudget] = useState<BudgetItem[]>([]);
+  const [standardInitiatives, setStandardInitiatives] = useState<StandardInitiative[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    async function loadBudgets() {
+    async function loadData() {
       setIsLoading(true);
       try {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const [opRes, posRes] = await Promise.all([
+        const [opRes, posRes, stdRes] = await Promise.all([
           fetch('/api/budgets?type=operating'),
           fetch('/api/positions'),
+          fetch('/api/standard-initiatives'),
         ]);
 
         const opResult = await opRes.json();
@@ -42,6 +44,13 @@ export function BudgetPageClient() {
         } else {
           toast({ variant: 'destructive', title: 'Error loading position budget', description: posResult.error });
         }
+        
+        const stdResult = await stdRes.json();
+        if (stdResult.success) {
+          setStandardInitiatives(stdResult.data);
+        } else {
+            toast({ variant: 'destructive', title: 'Error loading standard initiatives', description: stdResult.error });
+        }
 
       } catch (error) {
         toast({ variant: 'destructive', title: 'Error', description: 'Failed to connect to the server.' });
@@ -49,7 +58,7 @@ export function BudgetPageClient() {
         setIsLoading(false);
       }
     }
-    loadBudgets();
+    loadData();
   }, [toast]);
 
   const totalOperatingBudget = useMemo(() => operatingBudget.reduce((sum, item) => sum + item.amount, 0), [operatingBudget]);
@@ -264,6 +273,7 @@ export function BudgetPageClient() {
             <BudgetDetails
               operatingBudget={operatingBudget}
               positionBudget={positionBudget}
+              standardInitiatives={standardInitiatives}
               onAddItem={handleAddItem}
               onAddStandardItem={handleStandardInitiativeSave}
               onRemoveItem={handleRemoveItem}

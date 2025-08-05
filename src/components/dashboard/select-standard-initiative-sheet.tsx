@@ -34,6 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import type { StandardInitiative } from '@/lib/types';
 
 const standardInitiativeSchema = z.object({
   department: z.string().min(1, 'Department is required'),
@@ -49,12 +50,14 @@ interface SelectStandardInitiativeSheetProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: StandardInitiativeFormData) => void;
+  standardInitiatives: StandardInitiative[];
 }
 
 export function SelectStandardInitiativeSheet({
   isOpen,
   setIsOpen,
   onSave,
+  standardInitiatives,
 }: SelectStandardInitiativeSheetProps) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const {
@@ -141,8 +144,9 @@ export function SelectStandardInitiativeSheet({
                         <SelectValue placeholder="Select a Standard Initiative" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Standard Initiative 1">Standard Initiative 1</SelectItem>
-                        <SelectItem value="Standard Initiative 2">Standard Initiative 2</SelectItem>
+                        {standardInitiatives.map(initiative => (
+                          <SelectItem key={initiative.id} value={initiative.shortName}>{initiative.shortName}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}

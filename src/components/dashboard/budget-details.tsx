@@ -3,7 +3,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BudgetTable } from './budget-table';
-import type { BudgetItem } from '@/lib/types';
+import type { BudgetItem, StandardInitiative } from '@/lib/types';
 import { FileText, Users } from "lucide-react";
 import { ProposalNarrative } from "./proposal-narrative";
 import type { InitiativeFormData } from "./create-initiative-sheet";
@@ -15,6 +15,7 @@ import type { PositionFormData } from "./create-position-sheet";
 interface BudgetDetailsProps {
   operatingBudget: BudgetItem[];
   positionBudget: BudgetItem[];
+  standardInitiatives: StandardInitiative[];
   onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
   onAddStandardItem: (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => void;
   onRemoveItem: (id: string, type: 'operating' | 'position') => void;
@@ -52,6 +53,7 @@ const OperatingBudgetIcon = () => (
 export function BudgetDetails({ 
   operatingBudget,
   positionBudget,
+  standardInitiatives,
   onAddItem,
   onAddStandardItem,
   onRemoveItem,
@@ -81,6 +83,7 @@ export function BudgetDetails({
           type="operating"
           title="Operating Budget" 
           data={operatingBudget}
+          standardInitiatives={standardInitiatives}
           onAddItem={onAddItem}
           onAddStandardItem={onAddStandardItem}
           onRemoveItem={onRemoveItem}

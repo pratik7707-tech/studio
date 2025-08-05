@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { BudgetItem } from "@/lib/types";
+import type { BudgetItem, StandardInitiative } from "@/lib/types";
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -21,6 +21,7 @@ interface BudgetTableProps {
   type: 'operating' | 'position';
   title: string;
   data: BudgetItem[];
+  standardInitiatives: StandardInitiative[];
   onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
   onAddStandardItem: (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => void;
   onRemoveItem: (id: string, type: 'operating' | 'position') => void;
@@ -33,6 +34,7 @@ export function BudgetTable({
   type,
   title, 
   data, 
+  standardInitiatives,
   onAddItem,
   onAddStandardItem,
   onRemoveItem,
@@ -138,6 +140,7 @@ export function BudgetTable({
         isOpen={isStandardSheetOpen}
         setIsOpen={setIsStandardSheetOpen}
         onSave={handleSelectStandard}
+        standardInitiatives={standardInitiatives}
       />
     </>
   );
