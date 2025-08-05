@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import type { StandardInitiative } from '@/lib/types';
 import { Header } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { InitiativesTable } from './initiatives-table';
 import {
@@ -75,51 +75,61 @@ export function ManageStandardInitiativesClient() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold font-headline">Manage Standard Initiatives</h1>
-          <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Standard Initiative Plan
-          </Button>
+    <>
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
+        <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold font-headline">Manage Standard Initiatives</h1>
+            <Button onClick={handleCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Standard Initiative Plan
+            </Button>
+          </div>
+          <Card className="bg-white p-4 rounded-lg border">
+              <CardHeader>
+                  <CardTitle className="text-lg font-semibold">Standard Initiatives</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <InitiativesTable data={initiatives} isLoading={isLoading} />
+                  <div className="flex justify-end items-center gap-4 mt-4">
+                      <span className="text-sm text-muted-foreground">Records per page:</span>
+                      <Select defaultValue="10">
+                          <SelectTrigger className="w-16">
+                          <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                          <SelectItem value="10">10</SelectItem>
+                          <SelectItem value="20">20</SelectItem>
+                          <SelectItem value="50">50</SelectItem>
+                          </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" >{"<"}</Button>
+                          <Button variant="outline" size="sm" className="bg-gray-200">1</Button>
+                          <Button variant="outline" size="sm" >2</Button>
+                          <Button variant="outline" size="sm" >3</Button>
+                          <Button variant="outline" size="sm">{">"}</Button>
+                      </div>
+                  </div>
+              </CardContent>
+          </Card>
+        </main>
+        <CreateInitiativeSheet
+          isOpen={isSheetOpen}
+          setIsOpen={setIsSheetOpen}
+          onSave={handleSave}
+          isSaving={isSaving}
+        />
+      </div>
+      {isSaving && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl flex flex-col items-center">
+            <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
+            <p className="text-lg font-medium">Saving Initiative...</p>
+          </div>
         </div>
-        <Card className="bg-white p-4 rounded-lg border">
-            <CardHeader>
-                <CardTitle className="text-lg font-semibold">Standard Initiatives</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <InitiativesTable data={initiatives} isLoading={isLoading} />
-                 <div className="flex justify-end items-center gap-4 mt-4">
-                    <span className="text-sm text-muted-foreground">Records per page:</span>
-                    <Select defaultValue="10">
-                        <SelectTrigger className="w-16">
-                        <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" >{"<"}</Button>
-                        <Button variant="outline" size="sm" className="bg-gray-200">1</Button>
-                        <Button variant="outline" size="sm" >2</Button>
-                        <Button variant="outline" size="sm" >3</Button>
-                        <Button variant="outline" size="sm">{">"}</Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-      </main>
-      <CreateInitiativeSheet
-        isOpen={isSheetOpen}
-        setIsOpen={setIsSheetOpen}
-        onSave={handleSave}
-        isSaving={isSaving}
-      />
-    </div>
+      )}
+    </>
   );
 }

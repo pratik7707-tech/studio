@@ -24,7 +24,6 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from 'lucide-react';
 
