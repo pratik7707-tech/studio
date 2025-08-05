@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Loader2 } from "lucide-react";
+import { MoreVertical, Loader2, Edit, Trash2 } from "lucide-react";
 import type { StandardInitiative } from "@/lib/types";
 import {
     DropdownMenu,
@@ -69,9 +69,15 @@ export function InitiativesTable({ data, isLoading, onEdit, onDelete }: Initiati
                           </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onEdit(item)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
                           <AlertDialogTrigger asChild>
-                            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
                           </AlertDialogTrigger>
                       </DropdownMenuContent>
                     </DropdownMenu>
