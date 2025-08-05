@@ -53,7 +53,11 @@ export function Header() {
     } else if (adminMenuItems.some(item => item.href === pathname)) {
       setActiveNav('Admin');
     }
-  }, [pathname]);
+  }, [pathname, adminMenuItems]);
+
+  const navLinks: { [key in NavItem]?: string } = {
+    'Integrated Budget': '/',
+  };
 
   return (
     <>
@@ -66,32 +70,10 @@ export function Header() {
               <QuantumPlusLogo className="h-8" />
             </div>
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium h-full">
-              {navItems.map((item) => (
-                item === 'Admin' ? (
-                  <DropdownMenu key={item}>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className={cn(
-                          "h-full flex items-center border-b-2 transition-colors",
-                          activeNav === item
-                            ? "text-primary font-semibold border-primary"
-                            : "text-gray-600 border-transparent hover:text-primary"
-                        )}
-                      >
-                        {item}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      {adminMenuItems.map((adminItem) => (
-                        <DropdownMenuItem key={adminItem.label} asChild>
-                          <Link href={adminItem.href}>{adminItem.label}</Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
+              {navItems.map((item) => {
+                const link = navLinks[item];
+                const buttonContent = (
                   <button
-                    key={item}
                     onClick={() => setActiveNav(item)}
                     className={cn(
                       "h-full flex items-center border-b-2 transition-colors",
@@ -102,8 +84,40 @@ export function Header() {
                   >
                     {item}
                   </button>
-                )
-              ))}
+                );
+
+                if (item === 'Admin') {
+                  return (
+                    <DropdownMenu key={item}>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className={cn(
+                            "h-full flex items-center border-b-2 transition-colors",
+                            activeNav === item
+                              ? "text-primary font-semibold border-primary"
+                              : "text-gray-600 border-transparent hover:text-primary"
+                          )}
+                        >
+                          {item}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        {adminMenuItems.map((adminItem) => (
+                          <DropdownMenuItem key={adminItem.label} asChild>
+                            <Link href={adminItem.href}>{adminItem.label}</Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )
+                }
+
+                if (link) {
+                  return <Link key={item} href={link} legacyBehavior passHref>{buttonContent}</Link>;
+                }
+
+                return <div key={item}>{buttonContent}</div>;
+              })}
             </nav>
           </div>
           <div className="flex items-center gap-4">
