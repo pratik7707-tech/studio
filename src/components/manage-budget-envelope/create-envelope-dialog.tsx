@@ -123,7 +123,7 @@ export function CreateEnvelopeDialog({
                     name="y2026"
                     control={control}
                     render={({ field }) => (
-                        <Input id="y2026" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value))} className={cn(errors.y2026 && 'border-destructive')} />
+                        <Input id="y2026" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className={cn(errors.y2026 && 'border-destructive')} />
                     )}
                 />
                 {errors.y2026 && <p className="text-xs text-destructive">{errors.y2026.message}</p>}
@@ -134,7 +134,7 @@ export function CreateEnvelopeDialog({
                     name="y2027"
                     control={control}
                     render={({ field }) => (
-                        <Input id="y2027" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value))} className={cn(errors.y2027 && 'border-destructive')} />
+                        <Input id="y2027" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className={cn(errors.y2027 && 'border-destructive')} />
                     )}
                 />
                 {errors.y2027 && <p className="text-xs text-destructive">{errors.y2027.message}</p>}
@@ -145,7 +145,7 @@ export function CreateEnvelopeDialog({
                     name="y2028"
                     control={control}
                     render={({ field }) => (
-                        <Input id="y2028" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value))} className={cn(errors.y2028 && 'border-destructive')} />
+                        <Input id="y2028" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className={cn(errors.y2028 && 'border-destructive')} />
                     )}
                 />
                 {errors.y2028 && <p className="text-xs text-destructive">{errors.y2028.message}</p>}
@@ -156,7 +156,7 @@ export function CreateEnvelopeDialog({
                     name="y2029"
                     control={control}
                     render={({ field }) => (
-                        <Input id="y2029" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value))} className={cn(errors.y2029 && 'border-destructive')} />
+                        <Input id="y2029" {...field} value={field.value ?? ''} type="number" placeholder="Enter Amount" onChange={e => field.onChange(parseFloat(e.target.value) || 0)} className={cn(errors.y2029 && 'border-destructive')} />
                     )}
                 />
                 {errors.y2029 && <p className="text-xs text-destructive">{errors.y2029.message}</p>}
