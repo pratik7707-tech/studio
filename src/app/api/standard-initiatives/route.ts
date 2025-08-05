@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, serverTimestamp, setDoc, doc, updateDoc } from 'firebase/firestore';
 import type { StandardInitiative } from '@/lib/types';
 import { randomBytes } from 'crypto';
 
@@ -48,7 +48,6 @@ export async function POST(request: Request) {
       
       await setDoc(docRef, newInitiative);
   
-      // Return the full object including the ID and a placeholder for the timestamp
       const savedData = { ...newInitiative, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
       return NextResponse.json({ success: true, data: savedData });
     } catch (error) {
@@ -57,3 +56,24 @@ export async function POST(request: Request) {
     }
   }
 
+export async function PUT(request: Request) {
+    try {
+        const body: Partial<StandardInitiative> & { id: string } = await request.json();
+        const { id, ...dataToUpdate } = body;
+
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'Document ID is required.' }, { status: 400 });
+        }
+
+        const docRef = doc(db, COLLECTION_NAME, id);
+        await updateDoc(docRef, {
+            ...dataToUpdate,
+            updatedAt: serverTimestamp()
+        });
+
+        return NextResponse.json({ success: true, data: { id } });
+    } catch (error) {
+        console.error('Error in PUT handler:', error);
+        return NextResponse.json({ success: false, error: 'Failed to update data.' }, { status: 500 });
+    }
+}

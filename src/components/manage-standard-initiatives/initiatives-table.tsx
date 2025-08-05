@@ -22,9 +22,10 @@ import {
 interface InitiativesTableProps {
   data: StandardInitiative[];
   isLoading: boolean;
+  onEdit: (initiative: StandardInitiative) => void;
 }
 
-export function InitiativesTable({ data, isLoading }: InitiativesTableProps) {
+export function InitiativesTable({ data, isLoading, onEdit }: InitiativesTableProps) {
   return (
     <div className="border rounded-lg">
       <Table>
@@ -55,7 +56,7 @@ export function InitiativesTable({ data, isLoading }: InitiativesTableProps) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(item)}>Edit</DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from 'lucide-react';
+import type { StandardInitiative } from '@/lib/types';
 
 const initiativeSchema = z.object({
   shortName: z.string().min(1, 'Initiative name is required'),
@@ -40,6 +41,7 @@ interface CreateInitiativeSheetProps {
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: InitiativeFormData) => void;
   isSaving: boolean;
+  initialData?: StandardInitiative | null;
 }
 
 export function CreateInitiativeSheet({
@@ -47,6 +49,7 @@ export function CreateInitiativeSheet({
   setIsOpen,
   onSave,
   isSaving,
+  initialData,
 }: CreateInitiativeSheetProps) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const {
@@ -62,11 +65,23 @@ export function CreateInitiativeSheet({
     },
   });
 
+  const title = initialData ? "Edit Standard Initiative" : "New Standard Initiative";
+
   useEffect(() => {
     if (isOpen) {
-      reset();
+      if (initialData) {
+        reset({
+            shortName: initialData.shortName,
+            description: initialData.description,
+        });
+      } else {
+        reset({
+            shortName: '',
+            description: '',
+        });
+      }
     }
-  }, [isOpen, reset]);
+  }, [isOpen, initialData, reset]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open && isDirty && !isSaving) {
@@ -86,7 +101,7 @@ export function CreateInitiativeSheet({
       <Sheet open={isOpen} onOpenChange={handleOpenChange}>
         <SheetContent className="w-full sm:max-w-[640px] flex flex-col">
           <SheetHeader>
-            <SheetTitle>New Standard Initiative</SheetTitle>
+            <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
           <form onSubmit={handleSubmit(onSave)} className="flex-grow overflow-y-auto pr-6 pl-1 space-y-4 py-4">
             <div className="space-y-2">

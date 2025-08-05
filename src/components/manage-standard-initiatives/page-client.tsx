@@ -24,6 +24,7 @@ export function ManageStandardInitiativesClient() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const [editingInitiative, setEditingInitiative] = useState<StandardInitiative | null>(null);
 
   useEffect(() => {
     async function loadInitiatives() {
@@ -47,22 +48,39 @@ export function ManageStandardInitiativesClient() {
   }, [toast]);
 
   const handleCreate = () => {
+    setEditingInitiative(null);
+    setIsSheetOpen(true);
+  };
+
+  const handleEdit = (initiative: StandardInitiative) => {
+    setEditingInitiative(initiative);
     setIsSheetOpen(true);
   };
   
   const handleSave = async (formData: InitiativeFormData) => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/standard-initiatives', {
-        method: 'POST',
+      const url = editingInitiative ? `/api/standard-initiatives` : '/api/standard-initiatives';
+      const method = editingInitiative ? 'PUT' : 'POST';
+      const body = editingInitiative ? JSON.stringify({ ...formData, id: editingInitiative.id }) : JSON.stringify(formData);
+      
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body,
       });
       const result = await response.json();
+
       if (result.success) {
-        setInitiatives(prev => [...prev, result.data]);
-        toast({ title: 'Success!', description: 'Standard initiative saved successfully.' });
+        if (editingInitiative) {
+            setInitiatives(prev => prev.map(i => i.id === editingInitiative.id ? { ...i, ...formData } : i));
+            toast({ title: 'Success!', description: 'Standard initiative updated successfully.' });
+        } else {
+            setInitiatives(prev => [...prev, result.data]);
+            toast({ title: 'Success!', description: 'Standard initiative saved successfully.' });
+        }
         setIsSheetOpen(false);
+        setEditingInitiative(null);
       } else {
         toast({ variant: 'destructive', title: 'Error', description: result.error });
       }
@@ -91,7 +109,7 @@ export function ManageStandardInitiativesClient() {
                   <CardTitle className="text-lg font-semibold">Standard Initiatives</CardTitle>
               </CardHeader>
               <CardContent>
-                  <InitiativesTable data={initiatives} isLoading={isLoading} />
+                  <InitiativesTable data={initiatives} isLoading={isLoading} onEdit={handleEdit} />
                   <div className="flex justify-end items-center gap-4 mt-4">
                       <span className="text-sm text-muted-foreground">Records per page:</span>
                       <Select defaultValue="10">
@@ -120,6 +138,7 @@ export function ManageStandardInitiativesClient() {
           setIsOpen={setIsSheetOpen}
           onSave={handleSave}
           isSaving={isSaving}
+          initialData={editingInitiative}
         />
       </div>
       {isSaving && (
