@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -24,6 +25,7 @@ export function ManageBudgetEnvelopeClient() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isChartOpen, setIsChartOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingEnvelope, setEditingEnvelope] = useState<BudgetEnvelope | null>(null);
   const { toast } = useToast();
 
   const fetchEnvelopes = async () => {
@@ -82,23 +84,39 @@ export function ManageBudgetEnvelopeClient() {
     }).format(amount);
   };
 
+  const handleCreate = () => {
+    setEditingEnvelope(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleEdit = (envelope: BudgetEnvelope) => {
+    setEditingEnvelope(envelope);
+    setIsDialogOpen(true);
+  };
+
   const handleSave = async (formData: EnvelopeFormData) => {
     setIsSaving(true);
     try {
       const totalAmount = formData.y2026 + formData.y2027 + formData.y2028 + formData.y2029;
-      const dataToSave = { ...formData, totalAmount };
-
-      const response = await fetch('/api/budget-envelopes', {
-        method: 'POST',
+      
+      const method = editingEnvelope ? 'PUT' : 'POST';
+      const url = '/api/budget-envelopes';
+      const body = editingEnvelope 
+        ? JSON.stringify({ ...formData, totalAmount, id: editingEnvelope.id })
+        : JSON.stringify({ ...formData, totalAmount });
+      
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSave),
+        body,
       });
 
       const result = await response.json();
       if (result.success) {
         await fetchEnvelopes();
-        toast({ title: 'Success!', description: 'Budget envelope saved successfully.' });
+        toast({ title: 'Success!', description: `Budget envelope ${editingEnvelope ? 'updated' : 'saved'} successfully.` });
         setIsDialogOpen(false);
+        setEditingEnvelope(null);
       } else {
         toast({ variant: 'destructive', title: 'Error', description: result.error });
       }
@@ -133,7 +151,7 @@ export function ManageBudgetEnvelopeClient() {
                     <BarChart className="mr-2 h-4 w-4" />
                     View Chart
                   </Button>
-                  <Button onClick={() => setIsDialogOpen(true)}>
+                  <Button onClick={handleCreate}>
                       <Plus className="mr-2 h-4 w-4" />
                       Manage Budget Envelope
                   </Button>
@@ -141,7 +159,7 @@ export function ManageBudgetEnvelopeClient() {
           </div>
           
           <div className="mt-6">
-              <EnvelopesTable data={envelopes} isLoading={isLoading} />
+              <EnvelopesTable data={envelopes} isLoading={isLoading} onEdit={handleEdit} />
               <div className="flex justify-end items-center gap-4 mt-4">
                   <span className="text-sm text-muted-foreground">Records per page:</span>
                   <Select defaultValue="10">
@@ -169,6 +187,7 @@ export function ManageBudgetEnvelopeClient() {
         setIsOpen={setIsDialogOpen}
         onSave={handleSave}
         isSaving={isSaving}
+        initialData={editingEnvelope}
       />
       <EnvelopesChartDialog
         isOpen={isChartOpen}

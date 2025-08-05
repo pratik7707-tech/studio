@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import type { BudgetEnvelope } from '@/lib/types';
 import { randomBytes } from 'crypto';
 
@@ -55,5 +55,26 @@ export async function POST(request: Request) {
       console.error('Error in POST handler:', error);
       return NextResponse.json({ success: false, error: 'Failed to save data.' }, { status: 500 });
     }
-  }
+}
 
+export async function PUT(request: Request) {
+    try {
+      const body: Partial<BudgetEnvelope> & { id: string } = await request.json();
+      const { id, ...dataToUpdate } = body;
+  
+      if (!id) {
+        return NextResponse.json({ success: false, error: 'Document ID is required.' }, { status: 400 });
+      }
+      
+      const docRef = doc(db, COLLECTION_NAME, id);
+      await updateDoc(docRef, {
+          ...dataToUpdate,
+          updatedAt: serverTimestamp()
+      });
+  
+      return NextResponse.json({ success: true, data: { id } });
+    } catch (error) {
+      console.error('Error in PUT handler:', error);
+      return NextResponse.json({ success: false, error: 'Failed to update data.' }, { status: 500 });
+    }
+}

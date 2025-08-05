@@ -24,6 +24,7 @@ import { z } from 'zod';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import type { BudgetEnvelope } from '@/lib/types';
 
 const envelopeSchema = z.object({
   department: z.string().min(1, 'Department is required'),
@@ -40,6 +41,7 @@ interface CreateEnvelopeDialogProps {
   setIsOpen: (isOpen: boolean) => void;
   onSave: (data: EnvelopeFormData) => void;
   isSaving: boolean;
+  initialData?: BudgetEnvelope | null;
 }
 
 export function CreateEnvelopeDialog({
@@ -47,6 +49,7 @@ export function CreateEnvelopeDialog({
   setIsOpen,
   onSave,
   isSaving,
+  initialData,
 }: CreateEnvelopeDialogProps) {
   const {
     handleSubmit,
@@ -57,30 +60,36 @@ export function CreateEnvelopeDialog({
     resolver: zodResolver(envelopeSchema),
     defaultValues: {
       department: '',
-      y2026: undefined,
-      y2027: undefined,
-      y2028: undefined,
-      y2029: undefined,
+      y2026: 0,
+      y2027: 0,
+      y2028: 0,
+      y2029: 0,
     },
   });
 
+  const title = initialData ? "Edit Budget Envelope" : "New Budget Envelope";
+
   useEffect(() => {
     if (isOpen) {
-      reset({
-        department: '',
-        y2026: undefined,
-        y2027: undefined,
-        y2028: undefined,
-        y2029: undefined,
-      });
+        if (initialData) {
+            reset(initialData);
+        } else {
+            reset({
+                department: '',
+                y2026: 0,
+                y2027: 0,
+                y2028: 0,
+                y2029: 0,
+              });
+        }
     }
-  }, [isOpen, reset]);
+  }, [isOpen, initialData, reset]);
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Budget Envelope</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSave)} className="space-y-4">
           <div className="space-y-2">

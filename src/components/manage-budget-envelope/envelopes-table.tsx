@@ -22,6 +22,7 @@ import {
 interface EnvelopesTableProps {
   data: BudgetEnvelope[];
   isLoading: boolean;
+  onEdit: (envelope: BudgetEnvelope) => void;
 }
 
 const formatCurrency = (amount: number) => {
@@ -33,7 +34,7 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-export function EnvelopesTable({ data, isLoading }: EnvelopesTableProps) {
+export function EnvelopesTable({ data, isLoading, onEdit }: EnvelopesTableProps) {
   return (
     <div className="border rounded-lg bg-white">
       <Table>
@@ -72,7 +73,7 @@ export function EnvelopesTable({ data, isLoading }: EnvelopesTableProps) {
                           </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onEdit(item)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
