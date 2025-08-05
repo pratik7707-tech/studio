@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,6 +26,7 @@ type NavItem = 'RRP Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Ad
 
 export function Header() {
   const [activeNav, setActiveNav] = useState<NavItem>('Integrated Budget');
+  const pathname = usePathname();
 
   const navItems: NavItem[] = [
     'RRP Plan',
@@ -45,6 +47,14 @@ export function Header() {
     { label: 'Manage Programme Output', href: '#' }
   ];
 
+  useEffect(() => {
+    if (pathname === '/') {
+      setActiveNav('Integrated Budget');
+    } else if (adminMenuItems.some(item => item.href === pathname)) {
+      setActiveNav('Admin');
+    }
+  }, [pathname]);
+
   return (
     <>
       <header className="bg-white sticky top-0 z-20 shadow-sm">
@@ -61,7 +71,6 @@ export function Header() {
                   <DropdownMenu key={item}>
                     <DropdownMenuTrigger asChild>
                       <button
-                        onClick={() => setActiveNav(item)}
                         className={cn(
                           "h-full flex items-center border-b-2 transition-colors",
                           activeNav === item
