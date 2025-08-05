@@ -1,7 +1,8 @@
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { doc, setDoc, getDoc, deleteDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { ref, uploadBytes, deleteObject } from "firebase/storage";
 import { parseDocx } from './parser';
 
 const NARRATIVE_DOC_ID = "narrative_1";
@@ -42,13 +43,24 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get('file') as File | null;
 
-    let dataToSave: { Context: string; Challenges: string; Opportunities: string; };
+    let dataToSave: { Context: string; Challenges: string; Opportunities: string; fileName?: string };
 
     if (file) {
         const fileBuffer = Buffer.from(await file.arrayBuffer());
-        dataToSave = await parseDocx(fileBuffer);
+        
+        // Upload file to Firebase Storage
+        const storageRef = ref(storage, `narrative_documents/${file.name}`);
+        await uploadBytes(storageRef, fileBuffer, { contentType: file.type });
+        
+        // Parse docx for text content
+        const parsedContent = await parseDocx(fileBuffer);
+
+        dataToSave = {
+            ...parsedContent,
+            fileName: file.name
+        };
     } else {
         const body = await request.json().catch(() => formData.get('jsonData'));
         const jsonData = typeof body === 'string' ? JSON.parse(body) : body;
@@ -80,10 +92,26 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   try {
-    await deleteDoc(doc(db, "narratives", NARRATIVE_DOC_ID));
+    const docRef = doc(db, "narratives", NARRATIVE_DOC_ID);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && docSnap.data().fileName) {
+        const fileName = docSnap.data().fileName;
+        const storageRef = ref(storage, `narrative_documents/${fileName}`);
+        try {
+            await deleteObject(storageRef);
+        } catch (storageError: any) {
+            // If file not found, we can ignore, otherwise log it
+            if (storageError.code !== 'storage/object-not-found') {
+                console.warn("Could not delete file from storage:", storageError);
+            }
+        }
+    }
+
+    await deleteDoc(docRef);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting document: ", error);
-    return NextResponse.json({ success: false, error: "Failed to delete item from Firestore." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to delete item." }, { status: 500 });
   }
 }

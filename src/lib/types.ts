@@ -36,6 +36,7 @@ export interface NarrativeData {
   Challenges: string;
   Opportunities: string;
   updatedAt?: string;
+  fileName?: string;
 }
 
 export interface StandardInitiative {
