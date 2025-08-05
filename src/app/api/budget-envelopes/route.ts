@@ -48,6 +48,7 @@ export async function POST(request: Request) {
       
       await setDoc(docRef, newEnvelope);
   
+      // For immediate use on the client, we'll simulate the server-generated timestamps.
       const savedData = { ...newEnvelope, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
       return NextResponse.json({ success: true, data: savedData });
     } catch (error) {
@@ -55,3 +56,4 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Failed to save data.' }, { status: 500 });
     }
   }
+
