@@ -123,7 +123,7 @@ export function InitiativeItem({ item, onUpdate, onRemove, onSave }: InitiativeI
                                     <Input 
                                         type="number"
                                         className="w-32 h-8 text-left font-semibold"
-                                        value={item.amount}
+                                        defaultValue={item.amount}
                                         onChange={(e) => onUpdate(item.id, 'amount', Number(e.target.value))}
                                         onBlur={(e) => handleFieldSave('amount', Number(e.target.value))}
                                     />

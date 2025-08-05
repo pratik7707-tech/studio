@@ -17,21 +17,19 @@ import { CreateInitiativeSheet, InitiativeFormData } from "./create-initiative-s
 import { InitiativeItem } from "./initiative-item";
 import { StandardInitiativeFormData, SelectStandardInitiativeSheet } from "./select-standard-initiative-sheet";
 
-interface BudgetTableProps {
-  type: 'operating' | 'position';
+interface OperatingBudgetTableProps {
   title: string;
   data: BudgetItem[];
   standardInitiatives: StandardInitiative[];
-  onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
-  onAddStandardItem: (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => void;
-  onRemoveItem: (id: string, type: 'operating' | 'position') => void;
-  onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
-  onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
+  onAddItem: (newItem: InitiativeFormData) => void;
+  onAddStandardItem: (newItem: StandardInitiativeFormData) => void;
+  onRemoveItem: (id: string) => void;
+  onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number) => void;
+  onSaveItem: (id: string, formData: InitiativeFormData) => void;
   isLoading: boolean;
 }
 
-export function BudgetTable({ 
-  type,
+export function OperatingBudgetTable({ 
   title, 
   data, 
   standardInitiatives,
@@ -41,17 +39,17 @@ export function BudgetTable({
   onUpdateItem,
   onSaveItem,
   isLoading,
-}: BudgetTableProps) {
+}: OperatingBudgetTableProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isStandardSheetOpen, setIsStandardSheetOpen] = useState(false);
 
   const handleCreateNew = (formData: InitiativeFormData) => {
-    onAddItem(formData, type);
+    onAddItem(formData);
     setIsSheetOpen(false);
   };
   
   const handleSelectStandard = (formData: StandardInitiativeFormData) => {
-    onAddStandardItem(formData, type);
+    onAddStandardItem(formData);
     setIsStandardSheetOpen(false);
   };
 
@@ -115,9 +113,9 @@ export function BudgetTable({
                 <InitiativeItem 
                     key={item.id}
                     item={item}
-                    onUpdate={(id, field, value) => onUpdateItem(id, field, value, type)}
-                    onRemove={(id) => onRemoveItem(id, type)}
-                    onSave={(id, formData) => onSaveItem(id, formData, type)}
+                    onUpdate={onUpdateItem}
+                    onRemove={onRemoveItem}
+                    onSave={onSaveItem}
                 />
               ))
             ) : (

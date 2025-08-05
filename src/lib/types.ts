@@ -1,7 +1,4 @@
 
-
-
-
 export interface BudgetItem {
   id: string;
   type: 'operating' | 'position';
@@ -13,6 +10,8 @@ export interface BudgetItem {
   risk: string;
   amount: number;
   isStandard?: boolean;
+  createdAt?: any;
+  updatedAt?: any;
 
   // Position-specific fields
   positionId?: string;

@@ -2,27 +2,19 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BudgetTable } from './budget-table';
 import type { BudgetItem, StandardInitiative } from '@/lib/types';
 import { FileText, Users } from "lucide-react";
-import { ProposalNarrative } from "./proposal-narrative";
-import type { InitiativeFormData } from "./create-initiative-sheet";
-import type { StandardInitiativeFormData } from "./select-standard-initiative-sheet";
-import { PositionBudgetTable } from "./position-budget-table";
-import type { PositionFormData } from "./create-position-sheet";
-
+import { ProposalNarrative } from "../proposal-narrative/proposal-narrative";
+import { OperatingBudget } from "../operating-budget/operating-budget";
+import { PositionBudget } from "../position-budget/position-budget";
 
 interface BudgetDetailsProps {
   operatingBudget: BudgetItem[];
   positionBudget: BudgetItem[];
   standardInitiatives: StandardInitiative[];
-  onAddItem: (newItem: InitiativeFormData, type: 'operating' | 'position') => void;
-  onAddStandardItem: (newItem: StandardInitiativeFormData, type: 'operating' | 'position') => void;
-  onRemoveItem: (id: string, type: 'operating' | 'position') => void;
-  onUpdateItem: (id: string, field: keyof BudgetItem, value: string | number, type: 'operating' | 'position') => void;
-  onSaveItem: (id: string, formData: InitiativeFormData, type: 'operating' | 'position') => void;
-  onSavePosition: (formData: PositionFormData) => void;
   isLoading: boolean;
+  onOperatingBudgetUpdate: () => void;
+  onPositionBudgetUpdate: () => void;
 }
 
 const OperatingBudgetIcon = () => (
@@ -54,13 +46,9 @@ export function BudgetDetails({
   operatingBudget,
   positionBudget,
   standardInitiatives,
-  onAddItem,
-  onAddStandardItem,
-  onRemoveItem,
-  onUpdateItem,
-  onSaveItem,
-  onSavePosition,
   isLoading,
+  onOperatingBudgetUpdate,
+  onPositionBudgetUpdate,
 }: BudgetDetailsProps) {
   return (
     <Tabs defaultValue="narrative" className="bg-white rounded-lg border p-4">
@@ -79,24 +67,18 @@ export function BudgetDetails({
         <ProposalNarrative />
       </TabsContent>
       <TabsContent value="operating" className="mt-4">
-        <BudgetTable 
-          type="operating"
-          title="Operating Budget" 
+        <OperatingBudget
           data={operatingBudget}
           standardInitiatives={standardInitiatives}
-          onAddItem={onAddItem}
-          onAddStandardItem={onAddStandardItem}
-          onRemoveItem={onRemoveItem}
-          onUpdateItem={onUpdateItem}
-          onSaveItem={onSaveItem}
           isLoading={isLoading}
+          onUpdate={onOperatingBudgetUpdate}
         />
       </TabsContent>
       <TabsContent value="position" className="mt-4">
-        <PositionBudgetTable
+        <PositionBudget
           data={positionBudget}
           isLoading={isLoading}
-          onSavePosition={onSavePosition}
+          onUpdate={onPositionBudgetUpdate}
         />
       </TabsContent>
     </Tabs>

@@ -5,6 +5,8 @@ import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, where, s
 import type { BudgetItem } from '@/lib/types';
 import { randomBytes } from 'crypto';
 
+const COLLECTION_NAME = 'budgets';
+
 function generateSlug(name: string) {
     const slug = name
         .toLowerCase()
@@ -16,16 +18,9 @@ function generateSlug(name: string) {
     return `${slug}-${randomString}`;
 }
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type');
-
-  if (!type || (type !== 'operating' && type !== 'position')) {
-    return NextResponse.json({ success: false, error: 'Invalid budget type specified.' }, { status: 400 });
-  }
-
+export async function GET() {
   try {
-    const q = query(collection(db, 'budgets'), where('type', '==', type));
+    const q = query(collection(db, COLLECTION_NAME), where('type', '==', 'operating'));
     const querySnapshot = await getDocs(q);
     const data: BudgetItem[] = [];
     querySnapshot.forEach((doc) => {
@@ -40,15 +35,15 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body: Omit<BudgetItem, 'id'> = await request.json();
+    const body: Omit<BudgetItem, 'id' | 'type'> = await request.json();
     
-    // Generate a unique, human-readable ID
     const docId = generateSlug(body.shortName);
-    const docRef = doc(db, 'budgets', docId);
+    const docRef = doc(db, COLLECTION_NAME, docId);
 
-    const newBudgetItem = {
+    const newBudgetItem: BudgetItem = {
         ...body,
         id: docId,
+        type: 'operating',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     };
@@ -71,7 +66,7 @@ export async function PUT(request: Request) {
         return NextResponse.json({ success: false, error: 'Document ID is required.' }, { status: 400 });
       }
       
-      const docRef = doc(db, 'budgets', id);
+      const docRef = doc(db, COLLECTION_NAME, id);
       await updateDoc(docRef, {
           ...dataToUpdate,
           updatedAt: serverTimestamp()
@@ -93,7 +88,7 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ success: false, error: 'Document ID is required.' }, { status: 400 });
         }
 
-        await deleteDoc(doc(db, 'budgets', id));
+        await deleteDoc(doc(db, COLLECTION_NAME, id));
 
         return NextResponse.json({ success: true });
     } catch (error) {
