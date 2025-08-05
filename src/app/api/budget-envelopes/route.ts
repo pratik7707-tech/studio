@@ -1,10 +1,22 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import type { BudgetEnvelope } from '@/lib/types';
+import { randomBytes } from 'crypto';
 
 const COLLECTION_NAME = 'budget-envelopes';
+
+function generateSlug(name: string) {
+    const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/[\s-]+/g, '-');
+
+    const randomString = randomBytes(3).toString('hex');
+    return `${slug}-${randomString}`;
+}
 
 export async function GET() {
   try {
@@ -19,3 +31,27 @@ export async function GET() {
     return NextResponse.json({ success: false, error: 'Failed to fetch data from Firestore.' }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+    try {
+      const body: Omit<BudgetEnvelope, 'id'> = await request.json();
+      
+      const docId = generateSlug(body.department);
+      const docRef = doc(db, COLLECTION_NAME, docId);
+  
+      const newEnvelope = {
+          ...body,
+          id: docId,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+      };
+      
+      await setDoc(docRef, newEnvelope);
+  
+      const savedData = { ...newEnvelope, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      return NextResponse.json({ success: true, data: savedData });
+    } catch (error) {
+      console.error('Error in POST handler:', error);
+      return NextResponse.json({ success: false, error: 'Failed to save data.' }, { status: 500 });
+    }
+  }
