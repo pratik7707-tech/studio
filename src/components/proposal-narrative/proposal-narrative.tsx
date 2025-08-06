@@ -1,6 +1,6 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Plus, MoreVertical, Edit, Trash2, Upload, FileDown, Send, Loader2 as Spinner } from 'lucide-react';
+import { Plus, MoreVertical, Edit, Trash2, Upload, FileDown, Loader2 as Spinner } from 'lucide-react';
 import type { NarrativeData } from '@/lib/types';
 import { useState, useEffect, useRef } from 'react';
 import { ContextForm } from './context-form';
@@ -51,8 +51,6 @@ export function ProposalNarrative() {
   const [isFormOpen, setFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [email, setEmail] = useState('');
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -183,33 +181,6 @@ export function ProposalNarrative() {
     toast({ title: "Success!", description: "Narrative exported to Excel." });
   };
   
-  const handleSendEmail = async () => {
-    if (!email || !narrativeData) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Please enter a valid email address.' });
-      return;
-    }
-    setIsSendingEmail(true);
-    try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, narrative: narrativeData }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        toast({ title: 'Email Sent!', description: `Narrative sent to ${email}` });
-        setEmail('');
-      } else {
-        toast({ variant: 'destructive', title: 'Error sending email', description: result.error });
-      }
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to connect to the server.' });
-    } finally {
-      setIsSendingEmail(false);
-    }
-  };
-  
-
   if (isLoading) {
     return (
       <Card className="shadow-none border-none">
@@ -332,29 +303,6 @@ export function ProposalNarrative() {
           placeholder="No opportunities identified."
         />
       </CardContent>
-      <CardFooter className="p-0 pt-4 mt-4 border-t flex-col items-start gap-4">
-        <div className="w-full">
-          <Label htmlFor="email-narrative" className="text-sm font-semibold">Send Narrative via Email</Label>
-          <div className="flex w-full max-w-sm items-center space-x-2 mt-2">
-            <Input 
-              id="email-narrative" 
-              type="email" 
-              placeholder="Email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isSendingEmail}
-            />
-            <Button type="submit" onClick={handleSendEmail} disabled={isSendingEmail}>
-              {isSendingEmail ? (
-                <Spinner className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="mr-2 h-4 w-4" />
-              )}
-              Send
-            </Button>
-          </div>
-        </div>
-      </CardFooter>
       <ContextForm
         isOpen={isFormOpen}
         setIsOpen={setFormOpen}
