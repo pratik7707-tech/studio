@@ -28,7 +28,6 @@ import { Skeleton } from '../ui/skeleton';
 import * as XLSX from 'xlsx';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Separator } from '../ui/separator';
 
 interface NarrativeSectionProps {
   title: string;
@@ -54,8 +53,6 @@ export function ProposalNarrative() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [email, setEmail] = useState('');
-  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
-  const [whatsAppNumber, setWhatsAppNumber] = useState('');
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -212,31 +209,6 @@ export function ProposalNarrative() {
     }
   };
   
-  const handleSendWhatsApp = async () => {
-    if (!whatsAppNumber || !narrativeData) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Please enter a valid phone number.' });
-      return;
-    }
-    setIsSendingWhatsApp(true);
-    try {
-      const response = await fetch('/api/send-whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: whatsAppNumber, narrative: narrativeData }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        toast({ title: 'WhatsApp Sent!', description: `Narrative sent to ${whatsAppNumber}` });
-        setWhatsAppNumber('');
-      } else {
-        toast({ variant: 'destructive', title: 'Error sending WhatsApp', description: result.error });
-      }
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to connect to the server.' });
-    } finally {
-      setIsSendingWhatsApp(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -374,28 +346,6 @@ export function ProposalNarrative() {
             />
             <Button type="submit" onClick={handleSendEmail} disabled={isSendingEmail}>
               {isSendingEmail ? (
-                <Spinner className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="mr-2 h-4 w-4" />
-              )}
-              Send
-            </Button>
-          </div>
-        </div>
-        <Separator />
-        <div className="w-full">
-          <Label htmlFor="whatsapp-narrative" className="text-sm font-semibold">Send Narrative via WhatsApp</Label>
-          <div className="flex w-full max-w-sm items-center space-x-2 mt-2">
-            <Input 
-              id="whatsapp-narrative" 
-              type="tel" 
-              placeholder="Phone Number" 
-              value={whatsAppNumber}
-              onChange={(e) => setWhatsAppNumber(e.target.value)}
-              disabled={isSendingWhatsApp}
-            />
-            <Button type="submit" onClick={handleSendWhatsApp} disabled={isSendingWhatsApp}>
-              {isSendingWhatsApp ? (
                 <Spinner className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Send className="mr-2 h-4 w-4" />
