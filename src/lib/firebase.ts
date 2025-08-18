@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
@@ -10,8 +11,8 @@ const firebaseConfig = {
   "storageBucket": "budgetwise-tp3pe.appspot.com",
   "apiKey": "AIzaSyA_zB2haKA_5ccUuRLBzmDzfoEgkr1ge8w",
   "authDomain": "budgetwise-tp3pe.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "943872607880"
+  "messagingSenderId": "943872607880",
+  "measurementId": "G-MEASUREMENT_ID"
 };
 
 // Initialize Firebase
