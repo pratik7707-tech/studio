@@ -1,6 +1,6 @@
 # Application Test Cases
 
-This document outlines the test cases for the Quantum Plus application's key features.
+This document outlines the test cases for the BudgetWise application's key features.
 
 ---
 
@@ -73,7 +73,7 @@ This document outlines the test cases for the Quantum Plus application's key fea
 ### 3.2. Table Functionality
 - **Test Case 3.2.1:** Verify that the tabs "Baseline", "Proposed Changes", and "Final Positions" are present.
 - **Test Case 3.2.2:** Verify that the "Proposed Changes" tab is active by default.
-- **Test Case 3.2.3:** Verify that filtering and searching controls are present. (Functionality not yet implemented).
+- **Test Case 3.2.3:** Verify that filtering and searching controls are present.
 
 ---
 
@@ -90,17 +90,34 @@ This document outlines the test cases for the Quantum Plus application's key fea
 ### 4.2. Pagination
 - **Test Case 4.2.1:** Verify the pagination controls are displayed at the bottom of the table.
 - **Test Case 4.2.2:** Verify the current page is highlighted with the primary blue color.
-- **Test Case 4.2.3:** Verify the "Records per page" dropdown works as expected (UI only).
-- **Test Case 4.2.4:** Verify clicking on a page number changes the active page (UI only).
+- **Test Case 4.2.3:** Verify the "Records per page" dropdown works as expected.
+- **Test Case 4.2.4:** Verify clicking on a page number changes the active page.
 
 ---
 
-## 5. General & Navigation
+## 5. Manage Budget Envelope
 
-### 5.1. Header and Navigation
-- **Test Case 5.1.1:** Verify the "Admin" link in the header is highlighted when on the "Manage Standard Initiatives" page.
-- **Test Case 5.1.2:** Verify clicking the "Integrated Budget" link navigates back to the main dashboard page.
+### 5.1. Create, Edit, Delete
+- **Test Case 5.1.1:** Navigate to the page via Admin -> Manage Budget Envelope.
+- **Test Case 5.1.2:** Click "Manage Budget Envelope". Fill out the form and save.
+- **Test Case 5.1.3:** Verify the new envelope appears in the table with the correct yearly amounts and total.
+- **Test Case 5.1.4:** Click "Edit" on the new envelope. Change an amount and save. Verify the change is reflected in the table.
+- **Test Case 5.1.5:** Click "Delete" on the envelope. Confirm the deletion in the dialog.
+- **Test Case 5.1.6:** Verify the envelope is removed from the table.
 
-### 5.2. Loading States
-- **Test Case 5.2.1:** Verify that navigating between the "Integrated Budget" page and the "Manage Standard Initiatives" page displays a full-screen shimmer loader.
-- **Test Case 5.2.2:** Verify that a full-screen spinner overlay appears when saving a new standard initiative.
+### 5.2. Chart View
+- **Test Case 5.2.1:** Click the "View Chart" button.
+- **Test Case 5.2.2:** Verify a dialog appears with a bar chart.
+- **Test Case 5.2.3:** Verify the chart shows the correct total budget for each year (2026-2029).
+
+---
+
+## 6. General & Navigation
+
+### 6.1. Header and Navigation
+- **Test Case 6.1.1:** Verify the "Admin" link in the header is highlighted when on the "Manage Standard Initiatives" or "Manage Budget Envelope" pages.
+- **Test Case 6.1.2:** Verify clicking the "Integrated Budget" link navigates back to the main dashboard page.
+
+### 6.2. Loading States
+- **Test Case 6.2.1:** Verify that navigating between the "Integrated Budget" page and the "Manage Standard Initiatives" page displays a full-screen shimmer loader.
+- **Test Case 6.2.2:** Verify that a full-screen spinner overlay appears when saving a new standard initiative.
