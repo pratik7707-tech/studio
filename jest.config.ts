@@ -13,7 +13,7 @@ const config: Config = {
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: [
-    '/node_modules/(?!lucide-react/).*',
+    '/node_modules/(?!(lucide-react|@next/mdx|@next/react|@next/font|next)).*/',
   ],
   // Exclude the Playwright tests directory
   testMatch: ['<rootDir>/**/*.{test,spec}.{js,jsx,ts,tsx}', '!**/tests/**'],
