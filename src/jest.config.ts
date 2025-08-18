@@ -13,13 +13,12 @@ const config: Config = {
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: [
-    '/node_modules/(?!lucide-react/).*', // Add lucide-react here
+    '/node_modules/(?!(lucide-react)/)',
   ],
   // Exclude the Playwright tests directory
   testMatch: ['<rootDir>/**/*.{test,spec}.{js,jsx,ts,tsx}', '!**/tests/**'],
   preset: 'ts-jest',
   moduleNameMapper: {
-    '^lucide-react/(.*)$': '<rootDir>/node_modules/lucide-react/dist/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
 };
