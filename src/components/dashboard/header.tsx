@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -22,7 +21,7 @@ import {
 import Link from 'next/link';
 
 
-type NavItem = 'RRP Plan' | 'Partner Implementation' | 'Integrated Budget' | 'Admin';
+type NavItem = 'RRP Plan' | 'Confidential Login' | 'Integrated Budget' | 'Admin';
 
 export function Header() {
   const [activeNav, setActiveNav] = useState<NavItem>('Integrated Budget');
@@ -30,7 +29,7 @@ export function Header() {
 
   const navItems: NavItem[] = [
     'RRP Plan',
-    'Partner Implementation',
+    'Confidential Login',
     'Integrated Budget',
     'Admin'
   ];
@@ -57,6 +56,7 @@ export function Header() {
 
   const navLinks: { [key in NavItem]?: string } = {
     'Integrated Budget': '/',
+    'Confidential Login': '/confidential-login',
   };
 
   return (
