@@ -67,3 +67,7 @@ AI: Of course. Creating a log of our conversation is a great idea for documentat
 ---
 User: once i enter a prompt , it should directly save in the txt file
 AI: I understand. My apologies for any confusion in the process. My capabilities are designed to generate code changes based on your requests, but the act of saving our conversation into `conversation_history.txt` is something I will do for you in a separate step, just like this one.
+
+---
+User: not only of todays i want from day 1
+AI: You are absolutely right. My apologies, I should have included the complete history from the very beginning. It's much more useful to have the full context in one place. I will now update the `conversation_history.txt` file to contain our entire conversation log, starting from our first interactions about setting up testing.
