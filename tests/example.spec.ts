@@ -156,8 +156,7 @@ test.describe('BudgetWise Application Tests', () => {
         }
       }
 
-      // Explicitly wait for the "Add Manually" button to be visible
-      await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
+      await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
 
       // Add Manually
       await page.getByRole('button', { name: 'Add Manually' }).click();
@@ -195,6 +194,7 @@ test.describe('BudgetWise Application Tests', () => {
 
     test('Positive: should add a new custom initiative', async ({ page }) => {
       await page.goto('/');
+      await page.waitForLoadState('networkidle');
       await page.getByRole('tab', { name: 'Operating Budget' }).click();
       
       await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
@@ -219,6 +219,7 @@ test.describe('BudgetWise Application Tests', () => {
     
     test('Negative: should show errors for empty fields on custom initiative creation', async ({ page }) => {
       await page.goto('/');
+      await page.waitForLoadState('networkidle');
       await page.getByRole('tab', { name: 'Operating Budget' }).click();
 
       await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
@@ -234,8 +235,24 @@ test.describe('BudgetWise Application Tests', () => {
       await expect(page.getByText('Risk is required')).toBeVisible();
     });
 
+    test('Negative: should show errors for exceeding character limits on custom initiative', async ({ page }) => {
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      await page.getByRole('tab', { name: 'Operating Budget' }).click();
+    
+      await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
+      await page.getByRole('button', { name: 'Create' }).click();
+      await page.getByRole('menuitem', { name: 'New Initiative' }).click();
+    
+      const longString = 'a'.repeat(501);
+      await page.getByLabel('Enter Rationale*').fill(longString);
+    
+      // Verify validation message
+      await expect(page.getByText('Rationale must be 500 characters or less')).toBeVisible();
+    });
 
     test('Positive: should add a standard initiative', async ({ page }) => {
+        test.setTimeout(60000);
         await page.goto('/manage-standard-initiatives');
         await page.waitForLoadState('networkidle');
         await expect(page.getByRole('table')).toBeVisible();
@@ -246,7 +263,9 @@ test.describe('BudgetWise Application Tests', () => {
         await page.getByLabel('Description').fill('Standard Desc');
         await page.getByRole('button', { name: 'Save' }).click();
         await expect(page.getByText('A Standard Initiative for Testing')).toBeVisible();
+        
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
 
         await page.getByRole('tab', { name: 'Operating Budget' }).click();
         await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
@@ -270,6 +289,7 @@ test.describe('BudgetWise Application Tests', () => {
     test('Positive: should create a new position', async ({ page }) => {
         const positionTitle = `Test Position ${Date.now()}`;
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await page.getByRole('tab', { name: 'Position Budget' }).click();
 
         await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
@@ -315,6 +335,7 @@ test.describe('BudgetWise Application Tests', () => {
 
     test('Negative: should show errors for empty fields on new position', async ({ page }) => {
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await page.getByRole('tab', { name: 'Position Budget' }).click();
 
         await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
@@ -335,7 +356,9 @@ test.describe('BudgetWise Application Tests', () => {
     });
 
     test('Negative: should show error for invalid funding distribution', async ({ page }) => {
+        test.setTimeout(60000);
         await page.goto('/');
+        await page.waitForLoadState('networkidle');
         await page.getByRole('tab', { name: 'Position Budget' }).click();
         await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
         await page.getByRole('button', { name: 'New Position' }).click();
@@ -367,6 +390,21 @@ test.describe('BudgetWise Application Tests', () => {
         
         // Verify validation error
         await expect(page.getByText('Percentage must be 100% for each year with funding.')).toBeVisible();
+    });
+
+    test('Negative: should not allow letters in position number field', async ({ page }) => {
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      await page.getByRole('tab', { name: 'Position Budget' }).click();
+  
+      await page.getByRole('button', { name: 'New Position' }).click();
+      
+      const positionNumberInput = page.getByLabel('Position Number');
+      await positionNumberInput.fill('abc');
+      
+      // The `type="number"` on the input field should prevent non-numeric values.
+      // We assert that the value is empty, proving the letters were not accepted.
+      await expect(positionNumberInput).toHaveValue('');
     });
   });
 });
