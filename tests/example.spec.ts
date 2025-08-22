@@ -130,4 +130,152 @@ test.describe('BudgetWise Application Tests', () => {
       await expect(page.getByText('Amount is required').first()).toBeVisible();
     });
   });
+
+  test.describe('Proposal Narrative', () => {
+    test('should allow manually adding, editing, and deleting a narrative', async ({ page }) => {
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      // Delete any pre-existing narrative to ensure a clean slate
+      const deleteButton = page.locator('button:has-text("Delete")');
+      if (await deleteButton.count() > 0) {
+        await page.getByRole('button', { name: 'More options' }).click();
+        await page.getByRole('button', { name: 'Delete' }).click();
+        await page.getByRole('button', { name: 'Delete' }).click();
+        await page.waitForSelector('button:has-text("Add Manually")');
+      }
+
+      // Add Manually
+      await page.getByRole('button', { name: 'Add Manually' }).click();
+      await page.getByLabel('Context').fill('Test Context');
+      await page.getByLabel('Challenge').fill('Test Challenge');
+      await page.getByLabel('Opportunity').fill('Test Opportunity');
+      await page.getByRole('button', { name: 'Save' }).click();
+
+      // Verify creation
+      await expect(page.getByText('Test Context')).toBeVisible();
+      await expect(page.getByText('Test Challenge')).toBeVisible();
+      await expect(page.getByText('Test Opportunity')).toBeVisible();
+
+      // Edit
+      await page.getByRole('button', { name: 'More options' }).click();
+      await page.getByRole('menuitem', { name: 'Edit' }).click();
+      await page.getByLabel('Context').fill('Updated Test Context');
+      await page.getByRole('button', { name: 'Save' }).click();
+
+      // Verify edit
+      await expect(page.getByText('Updated Test Context')).toBeVisible();
+
+      // Delete
+      await page.getByRole('button', { name: 'More options' }).click();
+      await page.getByRole('button', { name: 'Delete' }).click();
+      await page.getByRole('button', { name: 'Delete' }).click();
+
+      // Verify deletion
+      await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
+    });
+  });
+
+  test.describe('Operating Budget', () => {
+    const initiativeName = `Custom Initiative ${Date.now()}`;
+
+    test('should add a new custom initiative', async ({ page }) => {
+      await page.goto('/');
+      await page.getByRole('tab', { name: 'Operating Budget' }).click();
+      
+      await page.getByRole('button', { name: 'Create' }).click();
+      await page.getByRole('menuitem', { name: 'New Initiative' }).click();
+      
+      await page.getByLabel('Enter Short Name*').fill(initiativeName);
+      await page.getByLabel('Enter Long Name*').fill('This is a longer name for the custom initiative');
+      await page.getByLabel('Select Department*').click();
+      await page.getByRole('option', { name: 'B0001-Executive Office' }).click();
+      await page.getByLabel('Enter Initiative Rationale*').fill('Test rationale');
+      await page.getByLabel('Enter risk of not implementing the initiative*').fill('Test risk');
+      await page.getByRole('button', { name: 'Save' }).click();
+
+      // Verify it was added to the list
+      await expect(page.getByText(initiativeName)).toBeVisible();
+
+      // Cleanup
+      await page.locator('.group').filter({ hasText: initiativeName }).getByRole('button').nth(0).click();
+      await page.getByRole('menuitem', { name: 'Delete' }).click();
+    });
+
+    test('should add a standard initiative', async ({ page }) => {
+        await page.goto('/');
+        await page.getByRole('tab', { name: 'Operating Budget' }).click();
+  
+        // Pre-requisite: ensure a standard initiative exists
+        await page.goto('/manage-standard-initiatives');
+        await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
+        await page.getByLabel('Standard Initiative Name').fill('A Standard Initiative for Testing');
+        await page.getByLabel('Description').fill('Standard Desc');
+        await page.getByRole('button', { name: 'Save' }).click();
+        await expect(page.getByText('A Standard Initiative for Testing')).toBeVisible();
+        await page.goto('/');
+
+        await page.getByRole('tab', { name: 'Operating Budget' }).click();
+        await page.getByRole('button', { name: 'Create' }).click();
+        await page.getByRole('menuitem', { name: 'Select Standard Initiatives' }).click();
+
+        await page.getByLabel('Select Department').click();
+        await page.getByRole('option', { name: 'B0010-Ethics Office' }).click();
+        await page.getByLabel('Select a Standard Initiative').click();
+        await page.getByRole('option', { name: 'A Standard Initiative for Testing' }).click();
+        await page.getByLabel('Enter Initiative Rationale').fill('Rationale for standard');
+        await page.getByLabel('Enter risk of not implementing the initiative').fill('Risk for standard');
+        await page.getByRole('button', { name: 'Save' }).click();
+
+        // Verify it was added
+        await expect(page.getByText('A Standard Initiative for Testing')).toBeVisible();
+    });
+  });
+
+  test.describe('Position Budget', () => {
+    test('should create a new position', async ({ page }) => {
+        const positionTitle = `Test Position ${Date.now()}`;
+        await page.goto('/');
+        await page.getByRole('tab', { name: 'Position Budget' }).click();
+
+        await page.getByRole('button', { name: 'New Position' }).click();
+        
+        await expect(page.getByRole('heading', { name: 'New Position' })).toBeVisible();
+        
+        await page.getByLabel('Select Department').click();
+        await page.getByRole('option', { name: 'B0002-Corp HQ - Management and Admin' }).click();
+        
+        await page.getByLabel('Location').click();
+        await page.getByRole('option', { name: 'USA' }).click();
+
+        await page.getByLabel('Select Grade').click();
+        await page.getByRole('option', { name: 'USG' }).click();
+
+        await page.getByLabel('Position Number').fill('12345');
+        await page.getByLabel('Position title').fill(positionTitle);
+
+        await page.getByLabel('Start Month/Year').click();
+        await page.getByRole('button', { name: 'Go to next month' }).click();
+        await page.getByRole('gridcell', { name: '15' }).first().click();
+
+        await page.getByLabel('End Month/Year').click();
+        await page.getByRole('button', { name: 'Go to next year' }).click();
+        await page.getByRole('gridcell', { name: '20' }).first().click();
+
+        await page.getByLabel('Enter Justification').fill('This is a justification for the new test position.');
+
+        await page.getByRole('button', { name: 'Add Source' }).click();
+        await page.getByLabel('Funding Source').click();
+        await page.getByRole('option', { name: 'Source 1' }).click();
+        await page.getByPlaceholder('%').first().fill('100');
+        await page.getByPlaceholder('%').nth(1).fill('100');
+        await page.getByPlaceholder('%').nth(2).fill('100');
+        await page.getByPlaceholder('%').nth(3).fill('100');
+
+        await page.getByRole('button', { name: 'Save' }).click();
+
+        // Verify the new position is in the table
+        await expect(page.getByRole('cell', { name: positionTitle })).toBeVisible();
+    });
+  });
 });
