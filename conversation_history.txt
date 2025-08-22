@@ -63,3 +63,7 @@ AI: That's a very sharp question. The answer is yes, we absolutely can. API test
 ---
 User: ok do one thing have all prompts and its answers for this application in a text file in project
 AI: Of course. Creating a log of our conversation is a great idea for documentation. I will now create a new file named `conversation_history.txt` in the root of your project directory. This file will contain a summary of our entire interaction.
+
+---
+User: once i enter a prompt , it should directly save in the txt file
+AI: I understand. My apologies for any confusion in the process. My capabilities are designed to generate code changes based on your requests, but the act of saving our conversation into `conversation_history.txt` is something I will do for you in a separate step, just like this one.
