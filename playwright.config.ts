@@ -1,69 +1,55 @@
-{
-  "name": "nextn",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack -p 9002",
-    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
-    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+
+// Use process.env.PORT by default and fallback to port 3000
+const PORT = process.env.PORT || 9002;
+
+// Set webServer.url and use.baseURL with the location of the WebServer
+const baseURL = `http://localhost:${PORT}`;
+
+/**
+ * See https://playwright.dev/docs/test-configuration.
+ */
+export default defineConfig({
+  // Timeout per test
+  timeout: 30 * 1000,
+  // Test directory
+  testDir: path.join(__dirname, 'tests'),
+  // If a test fails, retry it additional 2 times
+  retries: 2,
+  // Artifacts folder where screenshots, videos, and traces are stored.
+  outputDir: 'test-results/',
+
+  // Run your local dev server before starting the tests:
+  // https://playwright.dev/docs/test-advanced#launching-a-development-web-server-during-the-tests
+  webServer: {
+    command: 'npm run dev',
+    url: baseURL,
+    timeout: 120 * 1000,
+    reuseExistingServer: !process.env.CI,
   },
-  "dependencies": {
-    "@genkit-ai/googleai": "^1.14.1",
-    "@genkit-ai/next": "^1.14.1",
-    "@hookform/resolvers": "^4.1.3",
-    "@radix-ui/react-accordion": "^1.2.3",
-    "@radix-ui/react-alert-dialog": "^1.1.6",
-    "@radix-ui/react-avatar": "^1.1.3",
-    "@radix-ui/react-checkbox": "^1.1.4",
-    "@radix-ui/react-collapsible": "^1.1.11",
-    "@radix-ui/react-dialog": "^1.1.6",
-    "@radix-ui/react-dropdown-menu": "^2.1.6",
-    "@radix-ui/react-label": "^2.1.2",
-    "@radix-ui/react-menubar": "^1.1.6",
-    "@radix-ui/react-popover": "^1.1.6",
-    "@radix-ui/react-progress": "^1.1.2",
-    "@radix-ui/react-radio-group": "^1.2.3",
-    "@radix-ui/react-scroll-area": "^1.2.3",
-    "@radix-ui/react-select": "^2.1.6",
-    "@radix-ui/react-separator": "^1.1.2",
-    "@radix-ui/react-slider": "^1.2.3",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-switch": "^1.1.3",
-    "@radix-ui/react-tabs": "^1.1.3",
-    "@radix-ui/react-toast": "^1.2.6",
-    "@radix-ui/react-tooltip": "^1.1.8",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "date-fns": "^3.6.0",
-    "embla-carousel-react": "^8.6.0",
-    "firebase": "^11.9.1",
-    "genkit": "^1.14.1",
-    "lucide-react": "^0.475.0",
-    "mammoth": "^1.8.0",
-    "next": "15.3.3",
-    "react": "^18.3.1",
-    "react-day-picker": "^8.10.1",
-    "react-dom": "^18.3.1",
-    "react-hook-form": "^7.54.2",
-    "recharts": "^2.15.1",
-    "tailwind-merge": "^3.0.1",
-    "tailwindcss-animate": "^1.0.7",
-    "xlsx": "^0.18.5",
-    "zod": "^3.24.2"
+
+  use: {
+    // Use baseURL so to make navigations relative.
+    // More information: https://playwright.dev/docs/api/class-testoptions#test-options-base-url
+    baseURL,
+
+    // Ccollect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer
+    trace: 'on-first-retry',
   },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "@types/xlsx": "^0.0.36",
-    "genkit-cli": "^1.14.1",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5"
-  }
-}
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
+  ],
+});
