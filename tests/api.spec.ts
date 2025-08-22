@@ -47,6 +47,68 @@ test.describe('API Endpoint Tests', () => {
     expect(typeof json.data).toBe('object');
   });
 
+  test.describe('CRUD Operations for Proposal Narrative', () => {
+    const initialNarrative = {
+      Context: 'Initial API Test Context',
+      Challenges: 'Initial API Test Challenges',
+      Opportunities: 'Initial API Test Opportunities',
+    };
+
+    const updatedNarrative = {
+      Context: 'Updated API Test Context',
+    };
+
+    test.beforeEach(async ({ request }) => {
+      // Clean up before each test to ensure a consistent state
+      await request.delete('/api/narrative');
+    });
+
+    test('POST and DELETE /api/narrative', async ({ request }) => {
+      // 1. Create a new narrative
+      let postResponse = await request.post('/api/narrative', {
+        data: initialNarrative,
+      });
+      await expect(postResponse).toBeOK();
+      let postJson = await postResponse.json();
+      expect(postJson).toHaveProperty('success', true);
+      expect(postJson.data).toMatchObject(initialNarrative);
+
+      // 2. Verify with a GET request
+      let getResponse = await request.get('/api/narrative');
+      let getJson = await getResponse.json();
+      expect(getJson.data).toMatchObject(initialNarrative);
+
+      // 3. Update the narrative using another POST (as it handles create/update)
+      postResponse = await request.post('/api/narrative', {
+        data: updatedNarrative,
+      });
+      await expect(postResponse).toBeOK();
+      postJson = await postResponse.json();
+      expect(postJson.data.Context).toBe(updatedNarrative.Context);
+      
+       // Verify the update with another GET request
+      getResponse = await request.get('/api/narrative');
+      getJson = await response.json();
+      const finalNarrative = getJson.data;
+      expect(finalNarrative.Context).toBe(updatedNarrative.Context);
+      expect(finalNarrative.Challenges).toBe(initialNarrative.Challenges); // Ensure merge worked
+
+      // 4. Delete the narrative
+      const deleteResponse = await request.delete('/api/narrative');
+      await expect(deleteResponse).toBeOK();
+      const deleteJson = await deleteResponse.json();
+      expect(deleteJson).toHaveProperty('success', true);
+
+      // 5. Verify deletion
+      getResponse = await request.get('/api/narrative');
+      getJson = await getResponse.json();
+      expect(getJson.data.Context).toBe('');
+      expect(getJson.data.Challenges).toBe('');
+      expect(getJson.data.Opportunities).toBe('');
+    });
+  });
+
+
   test.describe('CRUD Operations for Standard Initiatives', () => {
 
     test('POST /api/standard-initiatives should create a new item', async ({ request }) => {
