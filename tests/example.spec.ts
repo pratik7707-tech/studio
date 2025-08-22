@@ -129,7 +129,7 @@ test.describe('BudgetWise Application Tests', () => {
 
       await expect(page.getByText('Department is required')).toBeVisible();
       // Check for the error message on the first amount field
-      await expect(page.locator('#y2026').locator('..').locator('..').getByText('Amount is required')).toBeVisible();
+      await expect(page.getByLabel('2026').locator('..').locator('..').getByText('Amount is required')).toBeVisible();
     });
   });
 
@@ -145,12 +145,13 @@ test.describe('BudgetWise Application Tests', () => {
         if (await deleteButton.count() > 0) {
             await deleteButton.click();
             await page.getByRole('button', { name: 'Delete' }).click();
-            await page.waitForSelector('button:has-text("Add Manually")');
         } else {
-            // Close dropdown if delete is not there
             await page.keyboard.press('Escape');
         }
       }
+
+      // Explicitly wait for the "Add Manually" button to be visible
+      await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
 
       // Add Manually
       await page.getByRole('button', { name: 'Add Manually' }).click();
@@ -357,5 +358,3 @@ test.describe('BudgetWise Application Tests', () => {
     });
   });
 });
-
-    
