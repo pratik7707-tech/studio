@@ -1,3 +1,4 @@
+
 import { test, expect } from '@playwright/test';
 
 test.describe('BudgetWise Application Tests', () => {
@@ -127,7 +128,8 @@ test.describe('BudgetWise Application Tests', () => {
       await page.getByRole('button', { name: 'Save Budget Envelope' }).click();
 
       await expect(page.getByText('Department is required')).toBeVisible();
-      await expect(page.getByText('Amount is required').first()).toBeVisible();
+      // Check for the error message on the first amount field
+      await expect(page.locator('#y2026').locator('..').locator('..').getByText('Amount is required')).toBeVisible();
     });
   });
 
@@ -138,11 +140,16 @@ test.describe('BudgetWise Application Tests', () => {
 
       // Delete any pre-existing narrative to ensure a clean slate
       const deleteButton = page.locator('button:has-text("Delete")');
-      if (await deleteButton.count() > 0) {
+      if (await page.getByRole('button', { name: 'More options' }).count() > 0) {
         await page.getByRole('button', { name: 'More options' }).click();
-        await page.getByRole('button', { name: 'Delete' }).click();
-        await page.getByRole('button', { name: 'Delete' }).click();
-        await page.waitForSelector('button:has-text("Add Manually")');
+        if (await deleteButton.count() > 0) {
+            await deleteButton.click();
+            await page.getByRole('button', { name: 'Delete' }).click();
+            await page.waitForSelector('button:has-text("Add Manually")');
+        } else {
+            // Close dropdown if delete is not there
+            await page.keyboard.press('Escape');
+        }
       }
 
       // Add Manually
@@ -350,3 +357,5 @@ test.describe('BudgetWise Application Tests', () => {
     });
   });
 });
+
+    
