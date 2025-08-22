@@ -1,5 +1,8 @@
 
 import { test, expect } from '@playwright/test';
+import * as docx from 'docx';
+import * as fs from 'fs';
+import * as path from 'path';
 
 test.describe('BudgetWise Application Tests', () => {
 
@@ -86,19 +89,19 @@ test.describe('BudgetWise Application Tests', () => {
     });
 
     test('Negative: should show errors for exceeding character limits on standard initiative', async ({ page }) => {
-        await page.goto('/manage-standard-initiatives');
-        await page.waitForLoadState('networkidle');
-  
-        await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
-        await expect(page.getByRole('heading', { name: 'New Standard Initiative' })).toBeVisible();
-  
-        await page.getByLabel('Standard Initiative Name').fill('a'.repeat(41));
-        await page.getByLabel('Description').fill('a'.repeat(501));
-        
-        await page.getByRole('button', { name: 'Save' }).click();
-        await expect(page.getByText('Short Name must be 40 characters or less')).toBeVisible();
-        await expect(page.getByText('Description must be 500 characters or less')).toBeVisible();
-      });
+      await page.goto('/manage-standard-initiatives');
+      await page.waitForLoadState('networkidle');
+
+      await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
+      await expect(page.getByRole('heading', { name: 'New Standard Initiative' })).toBeVisible();
+
+      await page.getByLabel('Standard Initiative Name').fill('a'.repeat(41));
+      await page.getByLabel('Description').fill('a'.repeat(501));
+      
+      await page.getByRole('button', { name: 'Save' }).click();
+      await expect(page.getByText('Short Name must be 40 characters or less')).toBeVisible();
+      await expect(page.getByText('Description must be 500 characters or less')).toBeVisible();
+    });
   });
 
   test.describe('Manage Budget Envelope', () => {
@@ -163,15 +166,14 @@ test.describe('BudgetWise Application Tests', () => {
           if (await deleteButton.isVisible()) {
               await deleteButton.click();
               await page.getByRole('button', { name: 'Delete' }).click();
-              await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible({ timeout: 10000 });
           } else {
               await page.keyboard.press('Escape');
           }
         }
+        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
     });
 
     test('Positive: should allow manually adding, editing, and deleting a narrative', async ({ page }) => {
-        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
         await page.getByRole('button', { name: 'Add Manually' }).click();
         await page.getByLabel('Context').fill('Test Context');
         await page.getByLabel('Challenge').fill('Test Challenge');
@@ -195,9 +197,38 @@ test.describe('BudgetWise Application Tests', () => {
 
         await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
     });
+
+    test('Positive: should upload a DOCX file and populate the narrative', async ({ page }) => {
+        const testDocPath = path.join(__dirname, 'test-narrative.docx');
+        const doc = new docx.Document({
+          sections: [{
+            children: [
+              new docx.Paragraph({ text: "Context", heading: docx.HeadingLevel.HEADING_1 }),
+              new docx.Paragraph({ text: "This is the context from the document." }),
+              new docx.Paragraph({ text: "Challenges", heading: docx.HeadingLevel.HEADING_1 }),
+              new docx.Paragraph({ text: "These are the challenges from the document." }),
+              new docx.Paragraph({ text: "Opportunities", heading: docx.HeadingLevel.HEADING_1 }),
+              new docx.Paragraph({ text: "These are the opportunities from the document." }),
+            ],
+          }],
+        });
+        const buffer = await docx.Packer.toBuffer(doc);
+        fs.writeFileSync(testDocPath, buffer);
+    
+        const fileChooserPromise = page.waitForEvent('filechooser');
+        await page.getByRole('button', { name: 'Upload DOCX' }).click();
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles(testDocPath);
+
+        await expect(page.getByText('This is the context from the document.')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('These are the challenges from the document.')).toBeVisible();
+        await expect(page.getByText('These are the opportunities from the document.')).toBeVisible();
+
+        // Clean up the created file
+        fs.unlinkSync(testDocPath);
+    });
     
     test('Negative: should handle partially filled narrative form', async ({ page }) => {
-        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
         await page.getByRole('button', { name: 'Add Manually' }).click();
         await page.getByLabel('Context').fill('Only Context Provided');
         await page.getByRole('button', { name: 'Save' }).click();
