@@ -4,15 +4,13 @@ test('has title', async ({ page }) => {
   await page.goto('/');
 
   // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Quantum Plus/);
+  await expect(page).toHaveTitle('Quantum Plus');
 });
 
-test('get started link', async ({ page }) => {
-  await page.goto('/');
-
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects the URL to contain intro.
-  await expect(page).toHaveURL(/.*intro/);
+test('has heading', async ({ page }) => {
+    await page.goto('/');
+  
+    // Expect the heading to be visible
+    const heading = page.getByRole('heading', { name: 'Integrated Budget' });
+    await expect(heading).toBeVisible();
 });
