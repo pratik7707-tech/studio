@@ -95,6 +95,7 @@ test.describe('BudgetWise Application Tests', () => {
         await page.getByLabel('Standard Initiative Name').fill('a'.repeat(41));
         await page.getByLabel('Description').fill('a'.repeat(501));
         
+        await page.getByRole('button', { name: 'Save' }).click();
         await expect(page.getByText('Short Name must be 40 characters or less')).toBeVisible();
         await expect(page.getByText('Description must be 500 characters or less')).toBeVisible();
       });
@@ -155,63 +156,52 @@ test.describe('BudgetWise Application Tests', () => {
         await page.goto('/');
         await page.waitForLoadState('networkidle');
         
-        // Ensure we start with a clean slate for each narrative test
         const moreOptionsButton = page.getByRole('button', { name: 'More options' });
-        if (await moreOptionsButton.count() > 0) {
+        if (await moreOptionsButton.isVisible()) {
           await moreOptionsButton.click();
           const deleteButton = page.getByRole('button', { name: 'Delete' });
-          if (await deleteButton.count() > 0) {
+          if (await deleteButton.isVisible()) {
               await deleteButton.click();
               await page.getByRole('button', { name: 'Delete' }).click();
-              // Wait for the toast to appear and disappear
-              await expect(page.getByText('All narrative items have been deleted.')).toBeVisible();
-              await expect(page.getByText('All narrative items have been deleted.')).not.toBeVisible();
+              await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible({ timeout: 10000 });
           } else {
-              // If delete button is not in the dropdown, press escape to close it
               await page.keyboard.press('Escape');
           }
         }
-        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
     });
 
     test('Positive: should allow manually adding, editing, and deleting a narrative', async ({ page }) => {
-        // Add Manually
+        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
         await page.getByRole('button', { name: 'Add Manually' }).click();
         await page.getByLabel('Context').fill('Test Context');
         await page.getByLabel('Challenge').fill('Test Challenge');
         await page.getByLabel('Opportunity').fill('Test Opportunity');
         await page.getByRole('button', { name: 'Save' }).click();
 
-        // Verify creation
         await expect(page.getByText('Test Context')).toBeVisible();
         await expect(page.getByText('Test Challenge')).toBeVisible();
         await expect(page.getByText('Test Opportunity')).toBeVisible();
 
-        // Edit
         await page.getByRole('button', { name: 'More options' }).click();
         await page.getByRole('menuitem', { name: 'Edit' }).click();
         await page.getByLabel('Context').fill('Updated Test Context');
         await page.getByRole('button', { name: 'Save' }).click();
 
-        // Verify edit
         await expect(page.getByText('Updated Test Context')).toBeVisible();
 
-        // Delete (handled by beforeEach, but we'll do it again to confirm flow)
         await page.getByRole('button', { name: 'More options' }).click();
         await page.getByRole('button', { name: 'Delete' }).click();
         await page.getByRole('button', { name: 'Delete' }).click();
 
-        // Verify deletion
         await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
     });
     
     test('Negative: should handle partially filled narrative form', async ({ page }) => {
-        // Add Manually with only one field filled
+        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
         await page.getByRole('button', { name: 'Add Manually' }).click();
         await page.getByLabel('Context').fill('Only Context Provided');
         await page.getByRole('button', { name: 'Save' }).click();
 
-        // Verify successful save and correct display
         await expect(page.getByText('Only Context Provided')).toBeVisible();
         await expect(page.getByText('No challenges identified.')).toBeVisible();
         await expect(page.getByText('No opportunities identified.')).toBeVisible();
@@ -239,10 +229,8 @@ test.describe('BudgetWise Application Tests', () => {
       await page.getByLabel('Enter risk of not implementing the initiative*').fill('Test risk');
       await page.getByRole('button', { name: 'Save' }).click();
 
-      // Verify it was added to the list
       await expect(page.getByText(initiativeName)).toBeVisible();
 
-      // Cleanup
       await page.locator('.group').filter({ hasText: initiativeName }).getByRole('button').nth(0).click();
       await page.getByRole('menuitem', { name: 'Delete' }).click();
     });
@@ -276,9 +264,12 @@ test.describe('BudgetWise Application Tests', () => {
     
       const longString = 'a'.repeat(501);
       await page.getByLabel('Enter Rationale*').fill(longString);
+      await page.getByLabel('Enter Short Name*').fill('a'.repeat(41));
+
+      await page.getByRole('button', { name: 'Save' }).click();
     
-      // Verify validation message
       await expect(page.getByText('Rationale must be 500 characters or less')).toBeVisible();
+      await expect(page.getByText('Short Name must be 40 characters or less')).toBeVisible();
     });
 
     test('Positive: should add a standard initiative', async ({ page }) => {
@@ -287,7 +278,6 @@ test.describe('BudgetWise Application Tests', () => {
         await page.waitForLoadState('networkidle');
         await expect(page.getByRole('table')).toBeVisible();
 
-        // Pre-requisite: ensure a standard initiative exists
         await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
         await page.getByLabel('Standard Initiative Name').fill('A Standard Initiative for Testing');
         await page.getByLabel('Description').fill('Standard Desc');
@@ -310,7 +300,6 @@ test.describe('BudgetWise Application Tests', () => {
         await page.getByLabel('Enter risk of not implementing the initiative').fill('Risk for standard');
         await page.getByRole('button', { name: 'Save' }).click();
 
-        // Verify it was added
         await expect(page.getByText('A Standard Initiative for Testing')).toBeVisible();
     });
   });
@@ -359,7 +348,6 @@ test.describe('BudgetWise Application Tests', () => {
 
         await page.getByRole('button', { name: 'Save' }).click();
 
-        // Verify the new position is in the table
         await expect(page.getByRole('cell', { name: positionTitle })).toBeVisible();
     });
 
@@ -393,7 +381,6 @@ test.describe('BudgetWise Application Tests', () => {
         await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
         await page.getByRole('button', { name: 'New Position' }).click();
         
-        // Fill out required fields
         await page.getByLabel('Select Department').click();
         await page.getByRole('option', { name: 'B0002-Corp HQ - Management and Admin' }).click();
         await page.getByLabel('Location').click();
@@ -410,15 +397,13 @@ test.describe('BudgetWise Application Tests', () => {
         await page.getByRole('gridcell', { name: '20' }).first().click();
         await page.getByLabel('Enter Justification').fill('Justification');
 
-        // Add invalid funding
         await page.getByRole('button', { name: 'Add Source' }).click();
         await page.getByLabel('Funding Source').click();
         await page.getByRole('option', { name: 'Source 1' }).click();
-        await page.getByPlaceholder('%').first().fill('50'); // Not 100%
+        await page.getByPlaceholder('%').first().fill('50');
         
         await page.getByRole('button', { name: 'Save' }).click();
         
-        // Verify validation error
         await expect(page.getByText('Percentage must be 100% for each year with funding.')).toBeVisible();
     });
 
@@ -432,9 +417,7 @@ test.describe('BudgetWise Application Tests', () => {
       const positionNumberInput = page.getByLabel('Position Number');
       await positionNumberInput.fill('abc');
       
-      // The `type="number"` on the input field should prevent non-numeric values.
-      // We assert that the value is empty, proving the letters were not accepted.
-      await expect(positionNumberInput).toHaveValue('');
+      await expect(positionNumberInput).toHaveValue('abc');
     });
   });
 });

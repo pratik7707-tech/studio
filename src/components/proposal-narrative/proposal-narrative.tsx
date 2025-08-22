@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { Plus, MoreVertical, Edit, Trash2, Upload, FileDown, Loader2 as Spinner } from 'lucide-react';
@@ -125,7 +126,7 @@ export function ProposalNarrative() {
         const response = await fetch('/api/narrative', { method: 'DELETE' });
         const result = await response.json();
         if (result.success) {
-            setNarrativeData({ id: 'narrative_1', Context: '', Challenges: '', Opportunities: '' });
+            setNarrativeData(null);
             toast({ title: 'Success!', description: 'All narrative items have been deleted.' });
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result.error });
