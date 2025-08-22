@@ -84,6 +84,20 @@ test.describe('BudgetWise Application Tests', () => {
       await expect(page.getByText('Initiative name is required')).toBeVisible();
       await expect(page.getByText('Description is required')).toBeVisible();
     });
+
+    test('Negative: should show errors for exceeding character limits on standard initiative', async ({ page }) => {
+        await page.goto('/manage-standard-initiatives');
+        await page.waitForLoadState('networkidle');
+  
+        await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
+        await expect(page.getByRole('heading', { name: 'New Standard Initiative' })).toBeVisible();
+  
+        await page.getByLabel('Standard Initiative Name').fill('a'.repeat(41));
+        await page.getByLabel('Description').fill('a'.repeat(501));
+        
+        await expect(page.getByText('Short Name must be 40 characters or less')).toBeVisible();
+        await expect(page.getByText('Description must be 500 characters or less')).toBeVisible();
+      });
   });
 
   test.describe('Manage Budget Envelope', () => {
@@ -132,62 +146,78 @@ test.describe('BudgetWise Application Tests', () => {
       await page.getByRole('button', { name: 'Save Budget Envelope' }).click();
 
       await expect(page.getByText('Department is required')).toBeVisible();
-      // Check for the error message on the first amount field
       await expect(page.getByText('Amount is required').first()).toBeVisible();
     });
   });
 
   test.describe('Proposal Narrative', () => {
-    test('Positive: should allow manually adding, editing, and deleting a narrative', async ({ page }) => {
-      test.setTimeout(60000); // Increase timeout for this test
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-
-      // Delete any pre-existing narrative to ensure a clean slate
-      if (await page.getByRole('button', { name: 'More options' }).count() > 0) {
-        await page.getByRole('button', { name: 'More options' }).click();
-        const deleteButton = page.getByRole('button', { name: 'Delete' });
-        if (await deleteButton.count() > 0) {
-            await deleteButton.click();
-            await page.getByRole('button', { name: 'Delete' }).click();
-            await expect(page.getByText('All narrative items have been deleted.')).toBeVisible();
-        } else {
-            await page.keyboard.press('Escape');
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+        
+        // Ensure we start with a clean slate for each narrative test
+        const moreOptionsButton = page.getByRole('button', { name: 'More options' });
+        if (await moreOptionsButton.count() > 0) {
+          await moreOptionsButton.click();
+          const deleteButton = page.getByRole('button', { name: 'Delete' });
+          if (await deleteButton.count() > 0) {
+              await deleteButton.click();
+              await page.getByRole('button', { name: 'Delete' }).click();
+              // Wait for the toast to appear and disappear
+              await expect(page.getByText('All narrative items have been deleted.')).toBeVisible();
+              await expect(page.getByText('All narrative items have been deleted.')).not.toBeVisible();
+          } else {
+              // If delete button is not in the dropdown, press escape to close it
+              await page.keyboard.press('Escape');
+          }
         }
-      }
+        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
+    });
 
-      await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
+    test('Positive: should allow manually adding, editing, and deleting a narrative', async ({ page }) => {
+        // Add Manually
+        await page.getByRole('button', { name: 'Add Manually' }).click();
+        await page.getByLabel('Context').fill('Test Context');
+        await page.getByLabel('Challenge').fill('Test Challenge');
+        await page.getByLabel('Opportunity').fill('Test Opportunity');
+        await page.getByRole('button', { name: 'Save' }).click();
 
-      // Add Manually
-      await page.getByRole('button', { name: 'Add Manually' }).click();
-      await page.getByLabel('Context').fill('Test Context');
-      await page.getByLabel('Challenge').fill('Test Challenge');
-      await page.getByLabel('Opportunity').fill('Test Opportunity');
-      await page.getByRole('button', { name: 'Save' }).click();
+        // Verify creation
+        await expect(page.getByText('Test Context')).toBeVisible();
+        await expect(page.getByText('Test Challenge')).toBeVisible();
+        await expect(page.getByText('Test Opportunity')).toBeVisible();
 
-      // Verify creation
-      await expect(page.getByText('Test Context')).toBeVisible();
-      await expect(page.getByText('Test Challenge')).toBeVisible();
-      await expect(page.getByText('Test Opportunity')).toBeVisible();
+        // Edit
+        await page.getByRole('button', { name: 'More options' }).click();
+        await page.getByRole('menuitem', { name: 'Edit' }).click();
+        await page.getByLabel('Context').fill('Updated Test Context');
+        await page.getByRole('button', { name: 'Save' }).click();
 
-      // Edit
-      await page.getByRole('button', { name: 'More options' }).click();
-      await page.getByRole('menuitem', { name: 'Edit' }).click();
-      await page.getByLabel('Context').fill('Updated Test Context');
-      await page.getByRole('button', { name: 'Save' }).click();
+        // Verify edit
+        await expect(page.getByText('Updated Test Context')).toBeVisible();
 
-      // Verify edit
-      await expect(page.getByText('Updated Test Context')).toBeVisible();
+        // Delete (handled by beforeEach, but we'll do it again to confirm flow)
+        await page.getByRole('button', { name: 'More options' }).click();
+        await page.getByRole('button', { name: 'Delete' }).click();
+        await page.getByRole('button', { name: 'Delete' }).click();
 
-      // Delete
-      await page.getByRole('button', { name: 'More options' }).click();
-      await page.getByRole('button', { name: 'Delete' }).click();
-      await page.getByRole('button', { name: 'Delete' }).click();
+        // Verify deletion
+        await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
+    });
+    
+    test('Negative: should handle partially filled narrative form', async ({ page }) => {
+        // Add Manually with only one field filled
+        await page.getByRole('button', { name: 'Add Manually' }).click();
+        await page.getByLabel('Context').fill('Only Context Provided');
+        await page.getByRole('button', { name: 'Save' }).click();
 
-      // Verify deletion
-      await expect(page.getByText('To begin, please create your first Context, Challenges & Opportunities')).toBeVisible();
+        // Verify successful save and correct display
+        await expect(page.getByText('Only Context Provided')).toBeVisible();
+        await expect(page.getByText('No challenges identified.')).toBeVisible();
+        await expect(page.getByText('No opportunities identified.')).toBeVisible();
     });
   });
+
 
   test.describe('Operating Budget', () => {
     const initiativeName = `Custom Initiative ${Date.now()}`;
