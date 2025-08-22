@@ -88,7 +88,7 @@ test.describe('API Endpoint Tests', () => {
       
        // Verify the update with another GET request
       getResponse = await request.get('/api/narrative');
-      getJson = await response.json();
+      getJson = await getResponse.json();
       const finalNarrative = getJson.data;
       expect(finalNarrative.Context).toBe(updatedNarrative.Context);
       expect(finalNarrative.Challenges).toBe(initialNarrative.Challenges); // Ensure merge worked

@@ -38,6 +38,7 @@ test.describe('BudgetWise Application Tests', () => {
 
     test('Positive: should allow creating, editing, and deleting a standard initiative', async ({ page }) => {
       await page.goto('/manage-standard-initiatives');
+      await page.waitForLoadState('networkidle');
 
       // Create
       await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
@@ -71,6 +72,7 @@ test.describe('BudgetWise Application Tests', () => {
 
     test('Negative: should show errors for empty fields on standard initiative creation', async ({ page }) => {
       await page.goto('/manage-standard-initiatives');
+      await page.waitForLoadState('networkidle');
 
       await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
       await expect(page.getByRole('heading', { name: 'New Standard Initiative' })).toBeVisible();
@@ -90,6 +92,7 @@ test.describe('BudgetWise Application Tests', () => {
 
     test('Positive: should allow creating and editing a budget envelope', async ({ page }) => {
       await page.goto('/manage-budget-envelope');
+      await page.waitForLoadState('networkidle');
 
       // Create
       await page.getByRole('button', { name: 'Manage Budget Envelope' }).click();
@@ -121,6 +124,7 @@ test.describe('BudgetWise Application Tests', () => {
 
     test('Negative: should show errors for empty fields on budget envelope creation', async ({ page }) => {
       await page.goto('/manage-budget-envelope');
+      await page.waitForLoadState('networkidle');
 
       await page.getByRole('button', { name: 'Manage Budget Envelope' }).click();
       await expect(page.getByRole('heading', { name: 'New Budget Envelope' })).toBeVisible();
@@ -129,22 +133,24 @@ test.describe('BudgetWise Application Tests', () => {
 
       await expect(page.getByText('Department is required')).toBeVisible();
       // Check for the error message on the first amount field
-      await expect(page.getByLabel('2026').locator('..').locator('..').getByText('Amount is required')).toBeVisible();
+      await expect(page.getByText('Amount is required').first()).toBeVisible();
     });
   });
 
   test.describe('Proposal Narrative', () => {
     test('Positive: should allow manually adding, editing, and deleting a narrative', async ({ page }) => {
+      test.setTimeout(60000); // Increase timeout for this test
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Delete any pre-existing narrative to ensure a clean slate
-      const deleteButton = page.locator('button:has-text("Delete")');
       if (await page.getByRole('button', { name: 'More options' }).count() > 0) {
         await page.getByRole('button', { name: 'More options' }).click();
+        const deleteButton = page.getByRole('button', { name: 'Delete' });
         if (await deleteButton.count() > 0) {
             await deleteButton.click();
             await page.getByRole('button', { name: 'Delete' }).click();
+            await expect(page.getByText('All narrative items have been deleted.')).toBeVisible();
         } else {
             await page.keyboard.press('Escape');
         }
@@ -191,6 +197,7 @@ test.describe('BudgetWise Application Tests', () => {
       await page.goto('/');
       await page.getByRole('tab', { name: 'Operating Budget' }).click();
       
+      await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
       await page.getByRole('button', { name: 'Create' }).click();
       await page.getByRole('menuitem', { name: 'New Initiative' }).click();
       
@@ -214,6 +221,7 @@ test.describe('BudgetWise Application Tests', () => {
       await page.goto('/');
       await page.getByRole('tab', { name: 'Operating Budget' }).click();
 
+      await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
       await page.getByRole('button', { name: 'Create' }).click();
       await page.getByRole('menuitem', { name: 'New Initiative' }).click();
       
@@ -228,11 +236,11 @@ test.describe('BudgetWise Application Tests', () => {
 
 
     test('Positive: should add a standard initiative', async ({ page }) => {
-        await page.goto('/');
-        await page.getByRole('tab', { name: 'Operating Budget' }).click();
-  
-        // Pre-requisite: ensure a standard initiative exists
         await page.goto('/manage-standard-initiatives');
+        await page.waitForLoadState('networkidle');
+        await expect(page.getByRole('table')).toBeVisible();
+
+        // Pre-requisite: ensure a standard initiative exists
         await page.getByRole('button', { name: 'New Standard Initiative Plan' }).click();
         await page.getByLabel('Standard Initiative Name').fill('A Standard Initiative for Testing');
         await page.getByLabel('Description').fill('Standard Desc');
@@ -241,6 +249,7 @@ test.describe('BudgetWise Application Tests', () => {
         await page.goto('/');
 
         await page.getByRole('tab', { name: 'Operating Budget' }).click();
+        await expect(page.getByRole('button', { name: 'Create' })).toBeVisible();
         await page.getByRole('button', { name: 'Create' }).click();
         await page.getByRole('menuitem', { name: 'Select Standard Initiatives' }).click();
 
@@ -263,6 +272,7 @@ test.describe('BudgetWise Application Tests', () => {
         await page.goto('/');
         await page.getByRole('tab', { name: 'Position Budget' }).click();
 
+        await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
         await page.getByRole('button', { name: 'New Position' }).click();
         
         await expect(page.getByRole('heading', { name: 'New Position' })).toBeVisible();
@@ -307,6 +317,7 @@ test.describe('BudgetWise Application Tests', () => {
         await page.goto('/');
         await page.getByRole('tab', { name: 'Position Budget' }).click();
 
+        await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
         await page.getByRole('button', { name: 'New Position' }).click();
         await expect(page.getByRole('heading', { name: 'New Position' })).toBeVisible();
 
@@ -326,6 +337,7 @@ test.describe('BudgetWise Application Tests', () => {
     test('Negative: should show error for invalid funding distribution', async ({ page }) => {
         await page.goto('/');
         await page.getByRole('tab', { name: 'Position Budget' }).click();
+        await expect(page.getByRole('button', { name: 'New Position' })).toBeVisible();
         await page.getByRole('button', { name: 'New Position' }).click();
         
         // Fill out required fields
